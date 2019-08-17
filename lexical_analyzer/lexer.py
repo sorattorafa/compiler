@@ -62,7 +62,8 @@ t_NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
  # A regular expression rule with some action code 
 def t_ID(t):
     r'''[a-zA-Z_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]
-    [a-zA-Z_0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]*'''
+    [a-zA-Z_0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]*''' 
+    t.type = reserved.get(t.value,'ID') 
     return t
 def t_NUMBER(t):
     r'\d+'
