@@ -71,7 +71,7 @@ def t_NUMBER(t):
     return t
   
 def t_NUMBER_FLOAT(t):
-    r'(\d+(\.\d*)?[eE][-+]?\d+)|(\d+\.\d*)'
+    r'([+-]?([0-9]*[.])?[0-9]+)'
     t.value = float(t.value)
     return t
 
@@ -142,7 +142,7 @@ lexer = lex.lex()
 data = '''
 3 + 4 * 10
   + -20 *2  
-variavel = 2,5
+variável = 2.5
 '''
  
  # Give the lexer some input
