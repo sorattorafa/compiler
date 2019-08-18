@@ -5,7 +5,7 @@
  # numbers and +,-,*,/
  # ------------------------------------------------------------
 import ply.lex as lex 
-
+ 
 # Declare reserved words
 reserved = {
     'se': 'SE',
@@ -30,6 +30,8 @@ tokens = [
     'DIVIDE',
     'LPAREN',
     'RPAREN',  
+    'OPENFUNCT', 
+    'CLOSEFUNCT', 
     'EQUALS', 
     'NAME', 
     'NUMBER_FLOAT', 
@@ -46,7 +48,11 @@ tokens = [
     'NOT',
     #SYMBOLS 
     'COLON',
-    'COMMA',
+    'COMMA', 
+    'COMMENT', 
+    #commands 
+    'FOR', 
+    'PRINT',
 ]+ list(reserved.values())
  
  # Regular expression rules for simple tokens
@@ -54,16 +60,25 @@ t_PLUS    = r'\+'
 t_MINUS   = r'-'
 t_TIMES   = r'\*'
 t_DIVIDE  = r'/'
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
+t_LPAREN  = r'\(' 
+t_RPAREN  = r'\)' 
+t_OPENFUNCT  = r'\{' 
+t_CLOSEFUNCT  = r'\}'
 t_EQUALS = r'='
 t_NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
- 
+t_FOR   = r'fo  r'
+t_PRINT = r'print'  
+
+def t_COMMENT(t):
+    r'\#.*'
+    pass
+   # No return value. Token discarded 
+
  # A regular expression rule with some action code 
 def t_ID(t):
     r'''[a-zA-Z_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]
     [a-zA-Z_0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]*''' 
-    t.type = reserved.get(t.value,'ID') 
+    t.type = reserved.get(t.value,'ID')  
     return t
 def t_NUMBER(t):
     r'\d+'
@@ -140,9 +155,10 @@ lexer = lex.lex()
 
  # Test it out
 data = '''
-3 + 4 * 10
-  + -20 *2  
-variável = 2.5
+# 3 + 4 * 10
+ + -20 *2   
+for (i=0;i<1;i++) 
+   { variável = 2.5 }
 '''
  
  # Give the lexer some input
