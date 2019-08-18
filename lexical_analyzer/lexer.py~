@@ -176,11 +176,6 @@ class MyLexer(object):
 
  # Build the lexer and try it out
 m = MyLexer()
-m.build()           # Build the lexer  
-# input data
-data = '''
-# 3 + 4 * 10
-#   + -20 *2
-for(a=0;a<2;a++){ variável= 0.25 }  
-'''
-m.test(data)     # Test it
+m.build()           # Build the lexer
+m.test("for(a=0;a<2;a++){ variável= 0.25 }")     # Test it
+ 
