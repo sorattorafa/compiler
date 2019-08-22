@@ -1,9 +1,6 @@
- # ------------------------------------------------------------
- # calclex.py
- #
- # tokenizer for a simple expression evaluator for
- # numbers and +,-,*,/
- # ------------------------------------------------------------
+# ------------------------------------------------------------
+# LEXICAL ANALYZER USING PYTHON AND PLY PACKAGE
+# ------------------------------------------------------------
 import ply.lex as lex 
   
 class MyLexer(object):
@@ -74,7 +71,7 @@ class MyLexer(object):
     t_ignore  = ' \t'
 
     def t_COMMENT(self,t):
-        r'\#.*'
+        r'\{[^\"]*\}'
         pass
        # No return value. Token discarded 
 
@@ -100,7 +97,7 @@ class MyLexer(object):
         t.lexer.lineno += len(t.value)
 
     def t_NOT_EQUAL(self,t):
-        r'<>'
+        r'!='
         return t
 
     def t_GREATER_EQUAL(self,t):
@@ -153,7 +150,7 @@ class MyLexer(object):
     
      # Build the lexer
     def build(self):
-        self.lexer = lex.lex(self) 
+        self.lexer = lex.lex(debug=False, module=self, optimize=False) 
     def test(self,data):
          # Give the lexer some input 
         self.lexer.input(data)
@@ -179,8 +176,13 @@ m = MyLexer()
 m.build()           # Build the lexer  
 # input data
 data = '''
-# 3 + 4 * 10
-#   + -20 *2
-for(a=0;a<2;a++){ variável= 0.25 }  
+{ 3 + 4 * 10
+   + -20 *2  
+}
+i = 0
+repita:  
+    i := i + 1 
+    variável := i
+até: i != 5
 '''
 m.test(data)     # Test it
