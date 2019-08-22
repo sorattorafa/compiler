@@ -66,7 +66,7 @@ class MyLexer(object):
     t_ENDLINE  = r';'
     t_EQUALS = r'='
     t_NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
-    t_FOR   = r'fo  r'
+    t_FOR   = r'for'
     t_PRINT = r'print'   
     t_ignore  = ' \t'
 
@@ -154,14 +154,12 @@ class MyLexer(object):
     def test(self,data):
          # Give the lexer some input 
         self.lexer.input(data)
-         
          # Tokenize
         while True:
             tok = self.lexer.token()
             if not tok: 
                 break      # No more input
-            print(tok) 
-
+            print(tok.type, " = ",tok.value) 
         for tok in self.lexer:
             print(tok) 
          # Tokenize
@@ -170,6 +168,7 @@ class MyLexer(object):
             if not tok: 
                 break      # No more input
             print(tok.type, tok.value, tok.lineno, tok.lexpos) 
+         
 
  # Build the lexer and try it out
 m = MyLexer()
@@ -181,8 +180,9 @@ data = '''
 }
 i = 0
 repita:  
-    i := i + 1 
+    i := i + +1.1 
     variável := i
 até: i != 5
 '''
-m.test(data)     # Test it
+m.test(data)     # Test it 
+
