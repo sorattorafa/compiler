@@ -1,0 +1,31 @@
+{
+    "name": "tpp-lang",
+    "displayName": "Tpp Lang",
+    "description": "Sintax Highlighting for tpp lang",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.37.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "tpp",
+            "aliases": ["Tpp", "tpp"],
+            "extensions": [".tpp"],
+            "configuration": "./language-configuration.json"
+        }], 
+        "grammars": [
+            {
+              "path": "./syntaxes/tpp.tmLanguage.json",
+              "scopeName": "source.tpp",
+              "injectTo": ["source.tpp"], 
+              "language": "tpp",
+              "embeddedLanguages": {
+                "meta.embedded.inline.sql": "source.sql"
+              }
+            }
+          ]
+    }
+}

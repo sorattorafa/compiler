@@ -156,9 +156,7 @@ class MyLexer(object):
             tok = self.lexer.token()
             if not tok: 
                 break      # No more input
-            print(tok.type, tok.value, tok.lineno, tok.lexpos) 
-         
-
+            print(tok.type, tok.value, tok.lineno, tok.lexpos)         
  # Build the lexer E try it out
 m = MyLexer()
 m.build()           # Build the lexer  

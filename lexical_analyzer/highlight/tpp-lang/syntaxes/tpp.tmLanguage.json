@@ -1,0 +1,32 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "tpp-lang",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#comments"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.tpp",
+				"match": "\\b(então|repita|se|retorna|entao|senão|inteiro|flutuante|fim|até|leia|escreva)\\b"
+			}]
+		},
+		"comments": {
+			"name": "string.quoted.double.tpp",
+			"begin": "{",
+			"end": "}",
+			"patterns": [
+				{
+					"name": "constant.character.escape.tpp",
+					"match": "\\\\."
+				}
+			]
+        } 
+	},
+	"scopeName": "source.tpp"
+}
