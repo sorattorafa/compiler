@@ -22,7 +22,8 @@ class MyLexer(object):
      
      # List of token names.   This is always required
     tokens = [
-        'NUMERO',
+        'NUMERO_INTEIRO', 
+        'NUMERO_NOTACAO_CIENTIFICA',
         'SOMA',
         'SUBTRACAO',
         'MULTIPLICACAO',
@@ -33,7 +34,7 @@ class MyLexer(object):
         'NAME', 
         'NUMERO_FLUTUANTE', 
         'ID', 
-        'NOT_EQUAL',
+        'DIFERENTE',
         'MAIOR',
         'MAIORIGUAL',
         'MENOR',
@@ -46,7 +47,9 @@ class MyLexer(object):
         #SYMBOLS 
         'DOISPONTOS',
         'VIRGULA', 
-        'COMENTARIO'
+        'COMENTARIO', 
+        'ABRECOLCHETES', 
+        'FECHACOLCHETES'
     ]+ list(reserved.values())
      
      # Regular expression rules for simple tokens
@@ -56,12 +59,17 @@ class MyLexer(object):
     t_DIVISAO  = r'/'
     t_ABREPARENTESES  = r'\(' 
     t_FECHAPARENTESES  = r'\)' 
+    t_ABRECOLCHETES  = r'\[' 
+    t_FECHACOLCHETES  = r'\]' 
     t_IGUALDADE = r'='
     t_NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
-    t_ignore  = ' \t'
+    t_ignore  = ' \t\n'
+    t_NUMERO_FLUTUANTE = r'[-|\+]?[\d+]+\.[\d+]*'
+    t_NUMERO_INTEIRO = r'[-|\+]?\d+'    
+    t_NUMERO_NOTACAO_CIENTIFICA =  r'((\+|-)?[\d+]+\.?[\d+]*)E(\+|-)?[\d+]+'
 
     def t_COMENTARIO(self,t):
-        r'\{[^\"]*\}'
+        r'\{((.|\n)*?)\}'
         pass
        # No return value. Token discarded 
 
@@ -70,23 +78,13 @@ class MyLexer(object):
         r'''[a-zA-Z_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]
         [a-zA-Z_0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]*''' 
         t.type = self.reserved.get(t.value,'ID')  
-        return t
-    def t_NUMERO(self,t):
-        r'\d+'
-        t.value = int(t.value)    
-        return t
-      
-    def t_NUMERO_FLUTUANTE(self,t):
-        r'([+-]?([0-9]*["."])?[0-9]+)'
-        t.value = float(t.value)
-        return t
+        return t  
 
-     # Define a rule so we can track line NUMEROs
     def t_newline(self,t):
         r'\n+'
-        t.lexer.lineno += len(t.value)
+        t.lexer.lineno += len(t.value) 
 
-    def t_NOT_EQUAL(self,t):
+    def t_DIFERENTE(self,t):
         r'!='
         return t
 

@@ -1,17 +1,19 @@
-{recebe o vetor do usuario} 
-inteiro: vet[100] 
-
-recebeVetor(inteiro: n)
+{preenche o vetor} 
+inteiro: vet[100];
+preencheVetor(inteiro:n)
   inteiro: i
+  inteiro: j
   i := 0
-  repita 
-    leia(vet[i])
+  j := n
+  repita
+    vet[i] = j
     i := i + 1
+    j := j - 1
   até i < n
 fim
 
 { função insertion sort }
-insertion_sort(inteiro: n) 
+insertion_sort(inteiro:n) 
  inteiro: i  
  inteiro: j  
  inteiro tmp  
@@ -28,9 +30,9 @@ insertion_sort(inteiro: n)
  até i < n 
 fim
 
-{funcao principal}
+{ main }
 inteiro principal()
-  recebeVetor(10)
+  preencheVetor(10)
   insertion_sort(10)
   retorna(0)
 fim
