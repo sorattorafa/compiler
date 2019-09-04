@@ -145,19 +145,17 @@ class MyLexer(object):
         while True:
             tok = self.lexer.token()
             if not tok: 
-                break      # No more input
-            print(tok.type, ",",tok.value) 
+                break      # No more input 
+            if (len(argv) == 2):
+                print(tok.value) 
+            if (len(argv) == 3):
+                print(tok.type, "=>",tok.value)     
         for tok in self.lexer:
-            print(tok) 
-         # Tokenize
-        while True:
-            tok = self.lexer.token()
-            if not tok: 
-                break      # No more input
-            print(tok.type, tok.value, tok.lineno, tok.lexpos)         
+            print(tok)        
  # Build the lexer E try it out
-m = MyLexer()
-m.build()           # Build the lexer  
-f = open(argv[1])  
+#m = MyLexer()
+#m.build()           # Build the lexer  
+#f = open(argv[1])  
 # input data
-m.test(f.read())     # Test it 
+#m.test(f.read())     # Test it  
+#print(len(argv))
