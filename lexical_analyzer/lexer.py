@@ -85,7 +85,7 @@ class MyLexer(object):
         t.lexer.lineno += len(t.value) 
 
     def t_DIFERENTE(self,t):
-        r'!='
+        r'<>'
         return t
 
     def t_MAIORIGUAL(self,t):
@@ -130,7 +130,7 @@ class MyLexer(object):
         r','
         return t
     
-    # Error hEling rule
+    # Error (no token)
     def t_error(self,t):
         print("Illegal character '%s'" % t.value[0])
         t.lexer.skip(1)
@@ -152,10 +152,3 @@ class MyLexer(object):
                 print(tok.type, "=>",tok.value)     
         for tok in self.lexer:
             print(tok)        
- # Build the lexer E try it out
-#m = MyLexer()
-#m.build()           # Build the lexer  
-#f = open(argv[1])  
-# input data
-#m.test(f.read())     # Test it  
-#print(len(argv))
