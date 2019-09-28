@@ -5,7 +5,7 @@ inteiro fatorial(inteiro: n)
 	d := 5.6 
 	inteiro: fat
 	se n > 10 então
-		se n > 0 então {não calcula se n > 0}
+		se n > 0 então 
 			fat := 1
 			repita
 				repita
@@ -29,5 +29,3 @@ inteiro principal()
 	leia(n)
 	escreva(fatorial(fatorial(1)))
 fim
-
-1+2

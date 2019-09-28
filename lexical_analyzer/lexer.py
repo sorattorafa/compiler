@@ -1,154 +1,125 @@
-# ------------------------------------------------------------
-# LEXICAL ANALYZER
-# ------------------------------------------------------------
-import ply.lex as lex 
-from sys import argv 
-  
-class MyLexer(object):
-    # Declare reserved words
-    reserved = {
-        'se': 'SE',
-        'então': 'ENTAO',
-        'fim': 'FIM',
-        'senão': 'SENAO',
-        'repita': 'REPITA',
-        'leia': 'LEIA',
-        'escreva': 'ESCREVA',
-        'retorna': 'RETORNA',
-        'até': 'ATE',
-        'inteiro': 'INTEIRO',
-        'flutuante': 'FLUTUANTE',
-    }
-     
-     # List of token names.   This is always required
-    tokens = [
-        'NUMERO_INTEIRO', 
-        'NUMERO_NOTACAO_CIENTIFICA',
-        'SOMA',
-        'SUBTRACAO',
-        'MULTIPLICACAO',
-        'DIVISAO',
-        'ABREPARENTESES',
-        'FECHAPARENTESES',  
-        'IGUALDADE', 
-        'NAME', 
-        'NUMERO_FLUTUANTE', 
-        'ID', 
-        'DIFERENTE',
-        'MAIOR',
-        'MAIORIGUAL',
-        'MENOR',
-        'MENORIGUAL',
-        'ATRIBUICAO',
-        # Logical
-        'E',
-        'OU',
-        'NEGACAO',
-        #SYMBOLS 
-        'DOISPONTOS',
-        'VIRGULA', 
-        'COMENTARIO', 
-        'ABRECOLCHETES', 
-        'FECHACOLCHETES'
-    ]+ list(reserved.values())
-     
-     # Regular expression rules for simple tokens
-    t_SOMA    = r'\+'
-    t_SUBTRACAO   = r'-'
-    t_MULTIPLICACAO   = r'\*'
-    t_DIVISAO  = r'/'
-    t_ABREPARENTESES  = r'\(' 
-    t_FECHAPARENTESES  = r'\)' 
-    t_ABRECOLCHETES  = r'\[' 
-    t_FECHACOLCHETES  = r'\]' 
-    t_IGUALDADE = r'='
-    t_NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
-    t_ignore  = ' \t\n'
-    t_NUMERO_FLUTUANTE = r'[-|\+]?[\d+]+\.[\d+]*'
-    t_NUMERO_INTEIRO = r'[-|\+]?\d+'    
-    t_NUMERO_NOTACAO_CIENTIFICA =  r'((\+|-)?[\d+]+\.?[\d+]*)E(\+|-)?[\d+]+'
+# -*- coding: UTF-8 -*-
+import ply.lex as lex
+from ply.lex import TOKEN
+import sys
+import re
 
-    def t_COMENTARIO(self,t):
-        r'\{((.|\n)*?)\}'
-        pass
-       # No return value. Token discarded 
+# Palavras Rservadas
+reserved = {
+    'se': 'SE',
+    'então': 'ENTAO',
+    'senão': 'SENAO',
+    'fim': 'FIM',
+    'leia': 'LEIA',
+    'escreva': 'ESCREVA',
+    'retorna': 'RETORNA',
+    'até': 'ATE',
+    'flutuante': 'FLUTUANTE',
+    'inteiro': 'INTEIRO',
+    'repita': 'REPITA',
+}
 
-     # A regular expression rule with some action code 
-    def t_ID(self,t):
-        r'''[a-zA-Z_áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]
-        [a-zA-Z_0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]*''' 
-        t.type = self.reserved.get(t.value,'ID')  
-        return t  
+# Lista de nomes dos tokens
+tokens = [
+# Logicals
+'E', 'OU', 'NAO', 
+# Types
+'NUMERO_PONTO_FLUTUANTE', 'NUMERO_INTEIRO',
+# Arithmeticals
+'SOMA', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO',
+# Relationals
+'MENORIGUAL', 'MAIORIGUAL', 'IGUALDADE', 'DIFERENTE', 'MENOR', 'MAIOR',
+# Simbolos
+'VIRGULA', 'ATRIBUICAO', 'ABREPARENTESES', 'FECHAPARENTESES', 'ABRECOLCHETE', 'FECHACOLCHETE',
+'ABRECHAVE', 'FECHACHAVE', 'DOISPONTOS',
+# Outros
+'ID', 'COMENTARIO']+list(reserved.values())
 
-    def t_newline(self,t):
-        r'\n+'
-        t.lexer.lineno += len(t.value) 
+# NUMEROS
+t_NUMERO_PONTO_FLUTUANTE = r'((\d+)(\.\d+)(e(\+|-)?(\d+))?|(\d+)e(\+|-)?(\d+))'
+t_NUMERO_INTEIRO = r'\d+'
+ 
+# LOGICOS 
+t_E = r'&&'
+t_OU = r'\|'
+t_NAO = r'\!'
+#OPERACOES
+t_SOMA = r'\+'
+t_SUBTRACAO = r'-'
+t_MULTIPLICACAO = r'\*'
+t_DIVISAO = r'/'
+#SIMBOLOS
+t_VIRGULA = r','
+t_ATRIBUICAO = r':='
+t_ABREPARENTESES = r'\('
+t_FECHAPARENTESES = r'\)'
+t_ABRECOLCHETE = r'\['
+t_FECHACOLCHETE = r'\]'
+t_ABRECHAVE = r'\{'
+t_FECHACHAVE = r'\}'
+t_DOISPONTOS = r':' 
 
-    def t_DIFERENTE(self,t):
-        r'<>'
-        return t
+#RELACIONAIS
+def t_DIFERENTE(t):
+    r'<>'
+    return t
 
-    def t_MAIORIGUAL(self,t):
-        r'>='
-        return t
+def t_IGUALDADE(t):
+    r'='
+    return t
+def t_MAIORIGUAL(t):
+    r'>='
+    return t
 
-    def t_MAIOR(self,t):
-        r'>'
-        return t
+def t_MAIOR(t):
+    r'>'
+    return t
 
-    def t_MENORIGUAL(self,t):
-        r'<='
-        return t
+def t_MENORIGUAL(t):
+    r'<='
+    return t
 
-    def t_MENOR(self,t):
-        r'<'
-        return t
+def t_MENOR(t):
+    r'<'
+    return t
 
-    def t_ATRIBUICAO(self,t):
-        r':='
-        return t
+def t_ID(t):
+    r'[A-Za-zÁ-Ñá-ñ_][\w_]*'
+    t.type = reserved.get(t.value, 'ID')
+    return t
 
-    # LOGICAL
-    def t_E(self,t):
-        r'&&'
-        return t
+def t_COMENTARIO(t):
+    r'{[^(})]*}'
+    lineCount = re.findall('\n', t.value)
+    t.lexer.lineno += len(lineCount)
 
-    def t_OU(self,t):
-        r'\|\|'
-        return t
+# New lines
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
 
-    def t_NEGACAO(self,t):
-        r'\!'
-        return t   
+# IGNORA ESPACO E TAB
+t_ignore = ' \t'
 
-    # Symbols
-    def t_DOISPONTOS(self,t):
-        r':'
-        return t
+# Erro
+def t_error(t):
+    raise Exception("Caracter ilegal '{}' (linha {})".format(t.value[0], t.lineno))
 
-    def t_VIRGULA(self,t):
-        r','
-        return t
-    
-    # Error (no token)
-    def t_error(self,t):
-        print("Illegal character '%s'" % t.value[0])
-        t.lexer.skip(1)
-    
-     # Build the lexer
-    def build(self):
-        self.lexer = lex.lex(debug=False, module=self, optimize=False) 
-    def test(self,data):
-         # Give the lexer some input 
-        self.lexer.input(data)
-         # Tokenize
-        while True:
-            tok = self.lexer.token()
-            if not tok: 
-                break      # No more input 
-            if (len(argv) == 2):
-                print(tok.value) 
-            if (len(argv) == 3):
-                print(tok.type, "=>",tok.value)     
-        for tok in self.lexer:
-            print(tok)        
+lexer = lex.lex(debug=False) 
+
+if __name__ == '__main__':
+    lista_tokens = []
+    new_token = {}
+    code = open(sys.argv[1])
+    code_text = code.read()
+    lex.input(code_text)
+    while True:
+        tok = lex.token()
+        if not tok:
+            break
+        new_token['Tipo'] = tok.type
+        new_token['Linha'] = tok.lineno
+        new_token['Valor'] = tok.value
+        lista_tokens.append(new_token)
+        print(new_token)
+    new_token = {}

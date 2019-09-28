@@ -1,7 +1,7 @@
 {recebe o vetor do usuario} 
-inteiro: vet[100] 
+inteiro: vet[100]
 
-recebeVetor(inteiro: n)
+recebeVetor(inteiro:n)
   inteiro: i
   i := 0
   repita 
@@ -11,10 +11,11 @@ recebeVetor(inteiro: n)
 fim
 
 { função insertion sort }
-insertion_sort(inteiro: n) 
+insertion_sort(inteiro:n) 
  inteiro: i  
  inteiro: j  
- inteiro tmp  
+ inteiro: tmp 
+
  i := 1
  repita  
     j := i 

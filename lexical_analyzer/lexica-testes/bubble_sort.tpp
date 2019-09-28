@@ -1,5 +1,5 @@
 {preenche o vetor} 
-inteiro: vet[100];
+inteiro: vet[100]
 preencheVetor(inteiro:n)
   inteiro: i
   inteiro: j
@@ -16,7 +16,7 @@ fim
 insertion_sort(inteiro:n) 
  inteiro: i  
  inteiro: j  
- inteiro tmp  
+ inteiro: tmp  
  i := 1
  repita  
     j := i 
