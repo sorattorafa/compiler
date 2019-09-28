@@ -8,9 +8,8 @@ import sys
 from anytree.exporter import DotExporter 
 contador = 0  # utilizado para indicar o número do nó criado
 parent = ''  # auxiliares para árvore
-children = '' 
 raiz = None # raiz
-funcoes_id = [] # para funcoes
+
   
  
 # declaracao de variaveis 
