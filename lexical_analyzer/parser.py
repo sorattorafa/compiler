@@ -463,7 +463,7 @@ def p_expressao_unaria_erro(t):
     '''
     print ("Erro na geração da regra expressao_aditiva")
 
-def p_operador_multiplicacao(t):
+def p_operador_multiplicacao_divisao(t):
     ''' operador_multiplicacao : MULTIPLICACAO
     | DIVISAO
     '''
@@ -540,7 +540,6 @@ def p_lista_argumentos_erro(t):
     '''
     print("Erro na geração da regra fator") 
 
-
 def p_operador_relacional(t):
     ''' operador_relacional : MENOR
     | MAIOR
@@ -563,45 +562,56 @@ def p_operador_relacional(t):
         t[1] = criar_no('MAIOR_GUAL', pai)
     else:
         t[1] = criar_no('MENORIGUAL', pai)
-
-def p_operador_soma(t):
+# operador aritmetico
+def p_operador_aritmetico(t):
     ''' operador_soma : SOMA
     | SUBTRACAO
     '''
-    pai = criar_no('operador_soma')
-    t[0] = pai
-    if t[1] == '+':
-        t[1] = criar_no('SOMA', pai)
+    pai = criar_no('operador_aritmetico')
+    t[0] = pai # raiz = op aritmetico
+    # se a segunda palavra é +
+    if t[1] == '+': 
+        t[1] = criar_no('SOMA', pai) # op aritmetico => soma
     else:
-        t[1] = criar_no('SUBTRACAO', pai)
-
-def p_operador_logico(t):
+        t[1] = criar_no('SUBTRACAO', pai) # op aritmetico => subtracao
+ 
+# define operadores logicos e/ou 
+def p_operadores_logico(t):
     ''' operador_logico : E
     | OU
     '''
     pai = criar_no('operador_logico')
-    t[0] = pai
-    if t[1] == '&&':
+    t[0] = pai # op log 
+    # se a segunda palavra for e
+    if t[1] == '&&': 
+        # op logico -> e    
         t[1] = criar_no('E', pai)
-    else:
+    else: 
+        # op logico -> ou    
         t[1] = criar_no('OU', pai)
-
+ 
+# negacao 
 def p_operador_not(t):
     ''' operador_negacao : NAO'''
     pai = criar_no('operador_negacao')
-    t[0] = pai
-    t[1] = criar_no('NAO', pai)
-
+    t[0] = pai # operador negacao
+    t[1] = criar_no('NAO', pai) # op -> nao
+ 
+# somente t[0] como pai
 def p_vazio(t):
     ' vazio : '
-    pai = criar_no('vazio')
-    t[0] = pai
+    pai = criar_no('vazio') 
+    t[0] = pai # vazio
 
-def p_erro(t):
-    if t:
+def p_erro(t): 
+    # se for error de sintaxe    
+    if t: 
+        # mostra uma exeção indicando a linha e o token         
         raise Exception("Erro de sintaxe na linha {} no token '{}'".format(t.lineno, t.value))
-    else:
-        parser.restart()
+    else: 
+        # reinicia o parser    
+        parser.restart() 
+        # gera uma  execao de erro
         raise Exception("Erro")
   
 # ativa o parser  
