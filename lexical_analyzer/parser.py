@@ -520,7 +520,8 @@ def p_chamada_funcao(t):
 def p_chamada_funcao_erro(t):
     ''' chamada_funcao : ID ABREPARENTESES error FECHAPARENTESES'''
     print("Erro na geração da regra fator")
-
+ 
+ 
 def p_lista_argumentos(t):
     ''' lista_argumentos : lista_argumentos VIRGULA expressao
     | expressao
@@ -539,7 +540,8 @@ def p_lista_argumentos_erro(t):
     | error
     '''
     print("Erro na geração da regra fator") 
-
+   
+# relacao entre numeros   
 def p_operador_relacional(t):
     ''' operador_relacional : MENOR
     | MAIOR
@@ -549,19 +551,19 @@ def p_operador_relacional(t):
     | MAIORIGUAL
     '''
     pai = criar_no('operador_relacional')
-    t[0] = pai
+    t[0] = pai # t[0] -> op relacional
     if t[1] == '<':
-        t[1] = criar_no('MENOR', pai)
+        t[1] = criar_no('MENOR', pai) # op relacional -> menor
     elif t[1] == '>':
-        t[1] = criar_no('MAIOR', pai)
+        t[1] = criar_no('MAIOR', pai) # op relacional -> maior
     elif t[1] == '=':
-        t[1] = criar_no('IGUALDADE', pai)
+        t[1] = criar_no('IGUALDADE', pai) # op relacional -> igual
     elif t[1] == '<>':
-        t[1] = criar_no('DIFERENTE', pai)
+        t[1] = criar_no('DIFERENTE', pai) # op relacional -> diferente
     elif t[1] == '>=':
-        t[1] = criar_no('MAIOR_GUAL', pai)
+        t[1] = criar_no('MAIOR_GUAL', pai) # op relacional -> maior igual
     else:
-        t[1] = criar_no('MENORIGUAL', pai)
+        t[1] = criar_no('MENORIGUAL', pai) # # op relacional -> menor igual
 # operador aritmetico
 def p_operador_aritmetico(t):
     ''' operador_soma : SOMA
