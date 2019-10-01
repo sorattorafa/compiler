@@ -136,6 +136,88 @@ def p_variavel_erro(t):
     ''' var : ID error '''
     print ("Erro na regra de var")
 
+def p_indice(t):
+    ''' indice : indice ABRECOLCHETE expressao FECHACOLCHETE
+    | ABRECOLCHETE expressao FECHACOLCHETE
+    '''
+    pai = criar_no('indice')
+    t[0] = pai
+    if len(t) == 4:
+        t[1] = criar_no('ABRECOLCHETE', pai)
+        t[2].parent = pai
+        t[3] = criar_no('FECHACOLCHETE', pai)
+    else:
+        t[1].parent = pai
+        t[2] = criar_no('ABRECOLCHETE', pai)
+        t[3].parent = pai
+        t[4] = criar_no('FECHACOLCHETE', pai)
+def p_indice_erro(t):
+    ''' indice : indice ABRECOLCHETE error FECHACOLCHETE
+    | ABRECOLCHETE error FECHACOLCHETE
+    | error ABRECOLCHETE expressao FECHACOLCHETE
+    '''
+    print ("Erro na geração da regra indice")
+
+def p_tipo_variavel(t):
+    ''' tipo : INTEIRO
+    | FLUTUANTE
+    '''
+    pai = criar_no('tipo')
+    t[0] = pai
+    t[1] = criar_no(t[1].upper(), pai)
+
+def p_func_declaracao(t):
+    ''' declaracao_funcao : tipo cabecalho
+    | cabecalho
+    '''
+    pai = criar_no('declaracao_funcao')
+    t[0] = pai
+    t[1].parent = pai
+    if len(t) == 3:
+        t[2].parent = pai
+def p_func_declaracao_erro(t):
+    ''' declaracao_funcao : error cabecalho
+    | tipo error
+    | error
+    '''
+    print ("Erro na geração da regra declaracao_funcao")
+
+def p_cabecalho_func(t):
+    ''' cabecalho : ID ABREPARENTESES lista_parametros FECHAPARENTESES corpo FIM'''
+    global funcoes_id
+    funcoes_id.append(t[1])
+    pai = criar_no('cabecalho')
+    t[0] = pai
+    t[1] = criar_no('ID-' + t[1], pai, t.lineno(1))
+    t[2] = criar_no('ABREPARENTESES', pai)
+    t[3].parent = pai
+    t[4] = criar_no('FECHAPARENTESES', pai)
+    t[5].parent = pai
+    t[6] = criar_no('FIM', pai)
+def p_cabecalho_func_erro(t):
+    ''' cabecalho : ID ABREPARENTESES error FECHAPARENTESES corpo FIM
+    | ID ABREPARENTESES lista_parametros FECHAPARENTESES error FIM
+    '''
+    print ("Erro na geração da regra declaracao_funcao")
+
+def p_lista_parametros(t):
+    ''' lista_parametros : lista_parametros VIRGULA lista_parametros
+    | parametro
+    | vazio
+    '''
+    pai = criar_no('lista_parametros')
+    t[0] = pai
+    t[1].parent = pai
+    if len(t) > 2:
+        t[2] = criar_no('VIRUGLA', pai)
+        t[3].parent = pai
+def p_lista_parametros_erro(t):
+    ''' lista_parametros : error VIRGULA lista_parametros
+    | lista_parametros VIRGULA error
+    | error
+    '''
+    print ("Erro na geração da regra lista_parametros")
+
 def p_parametro(t):
     ''' parametro : tipo DOISPONTOS ID
     | parametro ABRECOLCHETE FECHACOLCHETE
@@ -155,6 +237,64 @@ def p_parametro_erro(t):
     '''
     print ("Erro na geração da regra parametro")
 
+def p_corpo(t):
+    ''' corpo : corpo acao
+    | vazio
+    | acao
+    '''
+    pai = criar_no('corpo')
+    t[0] = pai
+    t[1].parent = pai
+    if len(t) == 3:
+        t[2].parent = pai
+def p_corpo_erro(t):
+    ''' corpo : error acao
+    | corpo error
+    | error
+    '''
+    print ("Erro na geração da regra corpo")
+
+def p_acao(t):
+    ''' acao : expressao
+    | declaracao_variaveis
+    | se
+    | repita
+    | leia
+    | escreva
+    | retorna
+    '''
+    pai = criar_no('acao')
+    t[0] = pai
+    t[1].parent = pai
+def p_acao_erro(t):
+    ''' acao : error'''
+    print ("Erro na geração da regra acao")
+
+def p_se(t):
+    ''' se : SE expressao ENTAO corpo FIM
+    | SE expressao ENTAO corpo SENAO corpo FIM
+    '''
+    pai = criar_no('se')
+    t[0] = pai
+    t[1] = criar_no('SE', pai, t.lineno(1))
+    t[2].parent = pai
+    t[3] = criar_no('ENTAO', pai)
+    t[4].parent = pai
+    if len(t) == 8:
+        t[5] = criar_no('SENAO', pai)
+        t[6].parent = pai
+        t[7] = criar_no('FIM', pai)
+    else:
+        t[5] = criar_no('FIM', pai)
+def p_se_erro(t):
+    ''' se : SE error ENTAO corpo FIM
+    | SE expressao ENTAO error FIM
+    | SE error ENTAO corpo SENAO corpo FIM
+    | SE expressao ENTAO error SENAO corpo FIM
+    | SE expressao ENTAO corpo SENAO error FIM
+    '''
+    print ("Erro na geração da regra se")
+
 def p_repita(t):
     ''' repita : REPITA corpo ATE expressao'''
     pai = criar_no('repita')
@@ -168,6 +308,19 @@ def p_repita_erro(t):
     | REPITA error ATE expressao
     '''
     print ("Erro na geração da regra repita")
+
+def p_atribuicao(t):
+    ''' atribuicao : var ATRIBUICAO expressao'''
+    pai = criar_no('atribuicao')
+    t[0] = pai
+    t[1].parent = pai
+    t[2] = criar_no('ATRIBUICAO', pai)
+    t[3].parent = pai 
+def p_atribuicao_erro(t):
+    ''' atribuicao : var ATRIBUICAO error
+    | error ATRIBUICAO expressao
+    '''
+    print('Erro na geração da regra de atribuicao')
 
 def p_leia(t):
     ''' leia : LEIA ABREPARENTESES expressao FECHAPARENTESES'''
@@ -193,6 +346,47 @@ def p_escreva_erro(t):
     ''' escreva : ESCREVA ABREPARENTESES error FECHAPARENTESES'''
     print ("Erro na geração da regra leia")
 
+def p_retorna(t):
+    ''' retorna : RETORNA ABREPARENTESES expressao FECHAPARENTESES '''
+    pai = criar_no('retorna')
+    t[0] = pai
+    t[1] = criar_no('RETORNA', pai, t.lineno(1))
+    t[2] = criar_no('ABREPARENTESES', pai)
+    t[3].parent = pai
+    t[4] = criar_no('FECHAPARENTESES', pai)
+def p_retorna_erro(t):
+    ''' retorna : RETORNA ABREPARENTESES error FECHAPARENTESES'''
+    print ("Erro na geração da regra retorna")
+
+def p_expressao(t):
+    ''' expressao : expressao_logica
+    | atribuicao
+    '''
+    pai = criar_no('expressao')
+    t[0] = pai
+    t[1].parent = pai
+def p_expressao_erro(t):
+    ''' expressao : error'''
+    print ("Erro na geração da regra expressao")
+
+def p_expressao_logica(t):
+    ''' expressao_logica : expressao_simples
+    | expressao_logica operador_logico expressao_simples
+    '''
+    pai = criar_no('expressao_logica')
+    t[0] = pai
+    t[1].parent = pai
+    if len(t) > 2:
+        t[2].parent = pai
+        t[3].parent = pai
+def p_expressao_logica_erro(t):
+    ''' expressao_logica : error operador_logico expressao_simples
+    | expressao_logica error expressao_simples
+    | expressao_logica operador_logico error
+    | error
+    '''
+    print ("Erro na geração da regra expressao_logica")
+
 def p_expressao_simples(t):
     ''' expressao_simples : expressao_aditiva
     | expressao_logica operador_relacional expressao_simples
@@ -210,6 +404,142 @@ def p_expressao_simples_erro(t):
     | expressao_logica operador_relacional error
     '''
     print ("Erro na geração da regra expressao_simples")
+
+def p_expressao_aditiva(t):
+    ''' expressao_aditiva : expressao_multiplicativa
+    | expressao_aditiva operador_soma expressao_multiplicativa
+    '''
+    pai = criar_no('expressao_aditiva')
+    t[0] = pai
+    t[1].parent = pai
+    if len(t) > 2:
+        t[2].parent = pai
+        t[3].parent = pai
+def p_expressao_aditiva_erro(t):
+    ''' expressao_aditiva : error
+    | error operador_soma expressao_multiplicativa
+    | expressao_aditiva error expressao_multiplicativa
+    | expressao_aditiva operador_soma error
+    '''
+    print ("Erro na geração da regra expressao_aditiva")
+
+def p_expressao_multiplicativa(t):
+    ''' expressao_multiplicativa : expressao_unaria
+    | expressao_multiplicativa operador_multiplicacao expressao_unaria
+    ''' 
+    pai = criar_no('expressao_multiplicativa')
+    t[0] = pai
+    t[1].parent = pai
+    if len(t) > 2:
+        t[2].parent = pai
+        t[3].parent = pai 
+        
+def p_expressao_multiplicativa_erro(t):
+    ''' expressao_multiplicativa : error
+    | error operador_multiplicacao expressao_unaria
+    | expressao_multiplicativa error expressao_unaria
+    | expressao_multiplicativa operador_multiplicacao error
+    '''
+    print ("Erro na geração da regra expressao_multiplicativa")
+
+def p_expressao_unaria(t):
+    ''' expressao_unaria : fator
+    | operador_soma fator
+    | NAO fator
+    '''
+    pai = criar_no('expressao_unaria')
+    t[0] = pai
+    if t[1] == '!':
+        t[1] = criar_no('NAO', pai)
+    else:
+        t[1].parent = pai
+
+    if len(t) > 2:
+        t[2].parent = pai
+def p_expressao_unaria_erro(t):
+    ''' expressao_unaria : error
+    | error fator
+    | operador_soma error
+    | NAO error
+    '''
+    print ("Erro na geração da regra expressao_aditiva")
+
+def p_operador_multiplicacao(t):
+    ''' operador_multiplicacao : MULTIPLICACAO
+    | DIVISAO
+    '''
+    pai = criar_no('operador_multiplicacao')
+    t[0] = pai
+    if t[1] == '*':
+        t[1] = criar_no('MULTIPLICACAO', pai)
+    else:
+        t[1] = criar_no('DIVISAO', pai)
+
+def p_fator(t):
+    ''' fator : ABREPARENTESES expressao FECHAPARENTESES
+    | var
+    | chamada_funcao
+    | numero
+    '''
+    pai = criar_no('fator')
+    t[0] = pai
+    if len(t) > 2:
+        t[1] = criar_no('ABREPARENTESES', pai)
+        t[2].parent = pai
+        t[3] = criar_no('FECHAPARENTESES', pai)
+    else:
+        t[1].parent = pai
+
+def p_fator_erro(t):
+    ''' fator : ABREPARENTESES error FECHAPARENTESES
+    | error
+    '''
+    print("Erro na geração da regra fator")
+
+def p_numero(t):
+    ''' numero : NUMERO_INTEIRO
+    | NUMERO_PONTO_FLUTUANTE
+    '''
+    pai = criar_no('numero')
+    t[0] = pai
+    if t[1].find('.') == -1:
+        t[1] = criar_no('NUMERO_INTEIRO-' + t[1], pai)
+    else:
+        t[1] = criar_no('NUMERO_PONTO_FLUTUANTE-' + t[1], pai)
+
+def p_chamada_funcao(t):
+    ''' chamada_funcao : ID ABREPARENTESES lista_argumentos FECHAPARENTESES
+    '''
+    pai = criar_no('chamada_funcao')
+    t[0] = pai
+    t[1] = criar_no('ID-' + t[1], pai, line=t.lineno(1))
+    t[2] = criar_no('ABREPARENTESES', pai)
+    t[3].parent = pai
+    t[4] = criar_no('FECHAPARENTESES', pai)
+
+
+def p_chamada_funcao_erro(t):
+    ''' chamada_funcao : ID ABREPARENTESES error FECHAPARENTESES'''
+    print("Erro na geração da regra fator")
+
+def p_lista_argumentos(t):
+    ''' lista_argumentos : lista_argumentos VIRGULA expressao
+    | expressao
+    | vazio
+    '''
+    pai = criar_no('lista_argumentos')
+    t[0] = pai
+    t[1].parent = pai
+    if len(t) > 2:
+        t[2] = criar_no('VIRGULA', pai)
+        t[3].parent = pai
+
+def p_lista_argumentos_erro(t):
+    ''' lista_argumentos : error VIRGULA expressao
+    | lista_argumentos VIRGULA error
+    | error
+    '''
+    print("Erro na geração da regra fator") 
 
 
 def p_operador_relacional(t):
