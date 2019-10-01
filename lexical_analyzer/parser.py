@@ -1,5 +1,4 @@
 # coding=utf-8 
-# rafael r. s. 2019 # 
 from ast import AST
 from ply import yacc
 from lexer import tokens
@@ -32,7 +31,7 @@ def criar_no(name, parent=None, line=None):
     else:
         return Node(str(contador) + '#' + name) 
  
-# primeiro nó  
+# primeiro nó raiz  
 def p_programa(t):
     """ programa : lista_declaracoes """
     global raiz 
@@ -66,7 +65,6 @@ def p_lista_operacoes_erro_2(t):
     '''
     print ("Erro na regra lista_declaracoes")
 
-
 def p_lista_operacoes_erro_3(t):
     ''' lista_declaracoes : error
     '''
@@ -89,20 +87,20 @@ def p_declaracao_erro(t):
 def p_declaracao_de_variavel(t):
     ''' declaracao_variaveis : tipo DOISPONTOS lista_variaveis''' 
     # cria no de declaracao de variaveis
-    pai = criar_no('declaracao_variaveis')
-    t[0] = pai
-    t[1].parent = pai
-    t[2] = criar_no('DOISPONTOS', pai)
-    t[3].parent = pai
+    pai = criar_no('declaracao_variaveis') 
+    t[0] = pai 
+    t[1].parent = pai #tipo
+    t[2] = criar_no('DOISPONTOS', pai) # :
+    t[3].parent = pai # lista
 def p_declaracao_de_variavel_erro(t):
     ''' declaracao_variaveis : error DOISPONTOS lista_variaveis'''
     print ("Erro na regra de declaracao_variaveis")
 
 def p_variaveis_inicializacao(t):
     ''' inicializacao_variaveis : atribuicao'''
-    pai = criar_no('inicializacao_variaveis')
-    t[0] = pai
-    t[1].parent = pai
+    pai = criar_no('inicializacao_variaveis') 
+    t[0] = pai # inicicializacao
+    t[1].parent = pai # atribuicao
 def p_variaveis_inicializacao_erro(t):
     ''' inicializacao_variaveis : error'''
     print ("Erro na regra de inicializacao_variaveis")
@@ -112,11 +110,11 @@ def p_lista_variaveis_inicializacao(t):
     | var
     '''
     pai = criar_no('lista_variaveis')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai #lista variaveis
+    t[1].parent = pai # = lista variaveis
     if (len(t) > 2):
-        t[2] = criar_no('VIRGULA', pai)
-        t[3].parent = pai
+        t[2] = criar_no('VIRGULA', pai) # ,
+        t[3].parent = pai # var
 def p_lista_variaveis_inicializacao_erro(t):
     ''' lista_variaveis : error VIRGULA var'''
     print ("Erro na regra de lista_variaveis")
@@ -128,8 +126,9 @@ def p_variavel(t):
     pai = criar_no('var')
     t[0] = pai
     global contador
-    contador+=1
-    t[1] = criar_variavel(pai,t.lineno(1),t) #Node(str(contador) + '#' + 'ID-' + t[1], parent=pai, line=t.lineno(1))
+    contador+=1 
+    # t[1] = Node(str(contador) + '#' + 'ID-' + t[1], parent=pai, line=t.lineno(1))
+    t[1] = criar_variavel(pai,t.lineno(1),t) 
     if len(t) > 2:
         t[2].parent = pai
 def p_variavel_erro(t):
