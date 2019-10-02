@@ -565,7 +565,7 @@ def p_operador_relacional(t):
     else:
         t[1] = criar_no('MENORIGUAL', pai) # # op relacional -> menor igual
 # operador aritmetico
-def p_operador_aritmetico(t):
+def p_operador_soma(t):
     ''' operador_soma : SOMA
     | SUBTRACAO
     '''
