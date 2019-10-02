@@ -7,7 +7,6 @@ inteiro busca(inteiro: n)
 	repita 
 		se A[i] = n
 			ret := 1
-			fim
 		i := i + 1
 	até i = 20
 	retorna(ret)
@@ -21,6 +20,6 @@ inteiro principal()
 		i := i + 1
 	até i = 20
 	leia(n)
-	escreva(busca(n))
+	escreva(busca(10))
 	retorno(0)
 fim
