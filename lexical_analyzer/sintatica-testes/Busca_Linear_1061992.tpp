@@ -10,12 +10,12 @@ inteiro busca(inteiro: n)
 	i := 0
 
 	repita 
-		se A[i] = n
+		se A[i] = n  
+			então
 			retorno := 1
-		fim		
+			fim 		
 		i := i + 1
 	até i = 20
-
 	retorna(retorno)
 fim
 
