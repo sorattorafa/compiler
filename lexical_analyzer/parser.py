@@ -1,15 +1,16 @@
-# coding=utf-8 
+# coding=utf-8  
+# dependencias utilizadas
 from ast import AST
 from ply import yacc
 from lexer import tokens
-from anytree import Node
+from anytree import Node 
 import sys 
-from anytree.exporter import DotExporter 
+from anytree.exporter import DotExporter   
+
+# variáveis auxiliares para criação da árvore
 contador = 0  # utilizado para indicar o número do nó criado
-parent = ''  # auxiliares para árvore
 raiz = None # raiz
 funcoes_id = []
-  
  
 # declaracao de variaveis 
 def criar_variavel(pai,line2,t):
@@ -421,7 +422,6 @@ def p_expressao_aditiva(t):
     pai = criar_no('expressao_aditiva')
     t[0] = pai # expressao aditiva
     t[1].parent = pai # expressao multiplicativa 
-    # expressao aditiva e operador_soma
     if len(t) > 2:
         t[2].parent = pai
         t[3].parent = pai
@@ -440,7 +440,7 @@ def p_expressao_multiplicativa(t):
     pai = criar_no('expressao_multiplicativa')
     t[0] = pai  # expressao multiplicativa
     t[1].parent = pai # expressao unaria 
-    # operador multiplicacao
+    # expressao multiplicativa
     if len(t) > 2:
         t[2].parent = pai
         t[3].parent = pai 
@@ -482,9 +482,11 @@ def p_operador_multiplicacao_divisao(t):
     | DIVISAO
     '''
     pai = criar_no('operador_multiplicacao')
-    t[0] = pai
+    t[0] = pai # operador 
+    # se for multiplicacao
     if t[1] == '*':
-        t[1] = criar_no('MULTIPLICACAO', pai)
+        t[1] = criar_no('MULTIPLICACAO', pai) 
+    # se for divisao    
     else:
         t[1] = criar_no('DIVISAO', pai)
 
@@ -495,13 +497,13 @@ def p_fator(t):
     | numero
     '''
     pai = criar_no('fator')
-    t[0] = pai
+    t[0] = pai # fator
     if len(t) > 2:
         t[1] = criar_no('ABREPARENTESES', pai)
-        t[2].parent = pai
+        t[2].parent = pai # expressao
         t[3] = criar_no('FECHAPARENTESES', pai)
     else:
-        t[1].parent = pai
+        t[1].parent = pai # chamada de funcao ou var ou numero
 
 def p_fator_erro(t):
     ''' fator : ABREPARENTESES error FECHAPARENTESES
@@ -514,20 +516,22 @@ def p_numero(t):
     | NUMERO_PONTO_FLUTUANTE
     '''
     pai = criar_no('numero')
-    t[0] = pai
+    t[0] = pai # NUMERO 
+    # se não tiver a parte decimal então é inteiro
     if t[1].find('.') == -1:
         t[1] = criar_no('NUMERO_INTEIRO-' + t[1], pai)
-    else:
+    else: 
+    # se tiver decimais é flutuante        
         t[1] = criar_no('NUMERO_PONTO_FLUTUANTE-' + t[1], pai)
 
 def p_chamada_funcao(t):
     ''' chamada_funcao : ID ABREPARENTESES lista_argumentos FECHAPARENTESES
     '''
     pai = criar_no('chamada_funcao')
-    t[0] = pai
-    t[1] = criar_no('ID-' + t[1], pai, line=t.lineno(1))
+    t[0] = pai # chamada de funcao
+    t[1] = criar_no('ID-' + t[1], pai, line=t.lineno(1)) # ID
     t[2] = criar_no('ABREPARENTESES', pai)
-    t[3].parent = pai
+    t[3].parent = pai # lsta de argumentos
     t[4] = criar_no('FECHAPARENTESES', pai)
 
 
@@ -615,10 +619,11 @@ def p_operador_not(t):
  
 # somente t[0] como pai
 def p_vazio(t):
-    ' vazio : '
+    ''' vazio : ''' 
     pai = criar_no('vazio') 
-    t[0] = pai # vazio
-
+    t[0] = pai # vazio  
+    pass    
+# funcao de erro
 def p_erro(t): 
     # se for error de sintaxe    
     if t: 
@@ -628,17 +633,17 @@ def p_erro(t):
         # reinicia o parser    
         parser.restart() 
         # gera uma  execao de erro
-        raise Exception("Erro")
-  
+        raise Exception("Erro") 
+
 # ativa o parser  
-parser = yacc.yacc() 
+parser = yacc.yacc(debug=True) 
 #recebe o arquivo com códgio tpp
 code = open(sys.argv[1]) 
 # le arquivo
 code_text = code.read() 
 # realiza a analise sintatica do código
 try:
-    parser.parse(code_text)
+    parser.parse(code_text, debug=False)
 except Exception as e:
     raise e 
 # se não houver uma raíz possui erro

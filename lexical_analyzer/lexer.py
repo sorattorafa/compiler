@@ -3,7 +3,6 @@ import ply.lex as lex
 from ply.lex import TOKEN
 import sys
 import re
-
 # Palavras Rservadas
 reserved = {
     'se': 'SE',
@@ -18,7 +17,6 @@ reserved = {
     'inteiro': 'INTEIRO',
     'repita': 'REPITA',
 }
-
 # Lista de nomes dos tokens
 tokens = [
 # Logicals
