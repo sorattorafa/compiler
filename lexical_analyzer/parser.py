@@ -128,7 +128,8 @@ def p_variavel(t):
     global contador
     contador+=1 
     # t[1] = Node(str(contador) + '#' + 'ID-' + t[1], parent=pai, line=t.lineno(1))
-    t[1] = criar_variavel(pai,t.lineno(1),t) 
+    t[1] = criar_variavel(pai,t.lineno(1),t)  
+    # se tiver indice
     if len(t) > 2:
         t[2].parent = pai
 def p_variavel_erro(t):
@@ -138,18 +139,22 @@ def p_variavel_erro(t):
 def p_indice(t):
     ''' indice : indice ABRECOLCHETE expressao FECHACOLCHETE
     | ABRECOLCHETE expressao FECHACOLCHETE
-    '''
+    ''' 
+    # utilizado em vetores e matrizes para saber o indice
     pai = criar_no('indice')
-    t[0] = pai
+    t[0] = pai 
+    #vetores
     if len(t) == 4:
         t[1] = criar_no('ABRECOLCHETE', pai)
         t[2].parent = pai
-        t[3] = criar_no('FECHACOLCHETE', pai)
+        t[3] = criar_no('FECHACOLCHETE', pai) 
+    # matrizes    
     else:
         t[1].parent = pai
         t[2] = criar_no('ABRECOLCHETE', pai)
         t[3].parent = pai
-        t[4] = criar_no('FECHACOLCHETE', pai)
+        t[4] = criar_no('FECHACOLCHETE', pai) 
+        
 def p_indice_erro(t):
     ''' indice : indice ABRECOLCHETE error FECHACOLCHETE
     | ABRECOLCHETE error FECHACOLCHETE
@@ -161,19 +166,19 @@ def p_tipo_variavel(t):
     ''' tipo : INTEIRO
     | FLUTUANTE
     '''
-    pai = criar_no('tipo')
+    pai = criar_no('tipo') # tipo
     t[0] = pai
-    t[1] = criar_no(t[1].upper(), pai)
+    t[1] = criar_no(t[1].upper(), pai) # tipo -> inteiro ou flutuante
 
 def p_func_declaracao(t):
     ''' declaracao_funcao : tipo cabecalho
     | cabecalho
     '''
     pai = criar_no('declaracao_funcao')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai # declaracao de funcao
+    t[1].parent = pai # tipo
     if len(t) == 3:
-        t[2].parent = pai
+        t[2].parent = pai # cabecalho
 def p_func_declaracao_erro(t):
     ''' declaracao_funcao : error cabecalho
     | tipo error
@@ -184,15 +189,16 @@ def p_func_declaracao_erro(t):
 def p_cabecalho_func(t):
     ''' cabecalho : ID ABREPARENTESES lista_parametros FECHAPARENTESES corpo FIM'''
     global funcoes_id
-    funcoes_id.append(t[1])
+    funcoes_id.append(t[1]) # armeza o id da funcao 
     pai = criar_no('cabecalho')
-    t[0] = pai
-    t[1] = criar_no('ID-' + t[1], pai, t.lineno(1))
-    t[2] = criar_no('ABREPARENTESES', pai)
-    t[3].parent = pai
-    t[4] = criar_no('FECHAPARENTESES', pai)
-    t[5].parent = pai
-    t[6] = criar_no('FIM', pai)
+    t[0] = pai # cabecalho
+    t[1] = criar_no('ID-' + t[1], pai, t.lineno(1)) # id
+    t[2] = criar_no('ABREPARENTESES', pai) # (
+    t[3].parent = pai # lista de parametros
+    t[4] = criar_no('FECHAPARENTESES', pai) # )
+    t[5].parent = pai # corpo
+    t[6] = criar_no('FIM', pai) #fim
+
 def p_cabecalho_func_erro(t):
     ''' cabecalho : ID ABREPARENTESES error FECHAPARENTESES corpo FIM
     | ID ABREPARENTESES lista_parametros FECHAPARENTESES error FIM
@@ -205,11 +211,11 @@ def p_lista_parametros(t):
     | vazio
     '''
     pai = criar_no('lista_parametros')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai # lista de parametros
+    t[1].parent = pai 
     if len(t) > 2:
         t[2] = criar_no('VIRUGLA', pai)
-        t[3].parent = pai
+        t[3].parent = pai # lista de parametros
 def p_lista_parametros_erro(t):
     ''' lista_parametros : error VIRGULA lista_parametros
     | lista_parametros VIRGULA error
@@ -242,10 +248,10 @@ def p_corpo(t):
     | acao
     '''
     pai = criar_no('corpo')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai # corpo
+    t[1].parent = pai # corpo : corpo
     if len(t) == 3:
-        t[2].parent = pai
+        t[2].parent = pai # acao
 def p_corpo_erro(t):
     ''' corpo : error acao
     | corpo error
@@ -263,8 +269,8 @@ def p_acao(t):
     | retorna
     '''
     pai = criar_no('acao')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai # acao
+    t[1].parent = pai # acao -> expressao
 def p_acao_erro(t):
     ''' acao : error'''
     print ("Erro na geração da regra acao")
@@ -274,15 +280,17 @@ def p_se(t):
     | SE expressao ENTAO corpo SENAO corpo FIM
     '''
     pai = criar_no('se')
-    t[0] = pai
-    t[1] = criar_no('SE', pai, t.lineno(1))
-    t[2].parent = pai
-    t[3] = criar_no('ENTAO', pai)
-    t[4].parent = pai
+    t[0] = pai # se
+    t[1] = criar_no('SE', pai, t.lineno(1)) # se -> SE
+    t[2].parent = pai # se -> SE expressao
+    t[3] = criar_no('ENTAO', pai) # se-> SE Expressao Então
+    t[4].parent = pai # corpo 
+    # se tiver um senão
     if len(t) == 8:
         t[5] = criar_no('SENAO', pai)
         t[6].parent = pai
-        t[7] = criar_no('FIM', pai)
+        t[7] = criar_no('FIM', pai) 
+    # fim sem o senão
     else:
         t[5] = criar_no('FIM', pai)
 def p_se_erro(t):
@@ -297,11 +305,11 @@ def p_se_erro(t):
 def p_repita(t):
     ''' repita : REPITA corpo ATE expressao'''
     pai = criar_no('repita')
-    t[0] = pai
-    t[1] = criar_no('REPITA', pai)
-    t[2].parent = pai
+    t[0] = pai # repita
+    t[1] = criar_no('REPITA', pai) # repita -> REPITA
+    t[2].parent = pai # corpo
     t[3] = criar_no('ATE', pai, t.lineno(3))
-    t[4].parent = pai
+    t[4].parent = pai # expressao
 def p_repita_erro(t):
     ''' repita : REPITA corpo ATE error
     | REPITA error ATE expressao
@@ -311,10 +319,10 @@ def p_repita_erro(t):
 def p_atribuicao(t):
     ''' atribuicao : var ATRIBUICAO expressao'''
     pai = criar_no('atribuicao')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai # atribuição 
+    t[1].parent = pai # atribuicao -> var
     t[2] = criar_no('ATRIBUICAO', pai)
-    t[3].parent = pai 
+    t[3].parent = pai # expressao
 def p_atribuicao_erro(t):
     ''' atribuicao : var ATRIBUICAO error
     | error ATRIBUICAO expressao
@@ -324,10 +332,10 @@ def p_atribuicao_erro(t):
 def p_leia(t):
     ''' leia : LEIA ABREPARENTESES expressao FECHAPARENTESES'''
     pai = criar_no('leia')
-    t[0] = pai
+    t[0] = pai # leia
     t[1] = criar_no('LEIA', pai)
     t[2] = criar_no('ABREPARENTESES', pai)
-    t[3].parent = pai
+    t[3].parent = pai # expressao
     t[4] = criar_no('FECHAPARENTESES', pai)
 def p_leia_erro(t):
     ''' leia : LEIA ABREPARENTESES error FECHAPARENTESES'''
@@ -336,10 +344,10 @@ def p_leia_erro(t):
 def p_escreva(t):
     ''' escreva : ESCREVA ABREPARENTESES expressao FECHAPARENTESES'''
     pai = criar_no('escreva')
-    t[0] = pai
+    t[0] = pai # escreva
     t[1] = criar_no('ESCREVA', pai)
     t[2] = criar_no('ABREPARENTESES', pai)
-    t[3].parent = pai
+    t[3].parent = pai # expressao
     t[4] = criar_no('FECHAPARENTESES', pai)
 def p_escreva_erro(t):
     ''' escreva : ESCREVA ABREPARENTESES error FECHAPARENTESES'''
@@ -348,10 +356,10 @@ def p_escreva_erro(t):
 def p_retorna(t):
     ''' retorna : RETORNA ABREPARENTESES expressao FECHAPARENTESES '''
     pai = criar_no('retorna')
-    t[0] = pai
+    t[0] = pai # retorna
     t[1] = criar_no('RETORNA', pai, t.lineno(1))
     t[2] = criar_no('ABREPARENTESES', pai)
-    t[3].parent = pai
+    t[3].parent = pai # expressao
     t[4] = criar_no('FECHAPARENTESES', pai)
 def p_retorna_erro(t):
     ''' retorna : RETORNA ABREPARENTESES error FECHAPARENTESES'''
@@ -362,8 +370,8 @@ def p_expressao(t):
     | atribuicao
     '''
     pai = criar_no('expressao')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai # expressao
+    t[1].parent = pai # expressao -> expressao_logica
 def p_expressao_erro(t):
     ''' expressao : error'''
     print ("Erro na geração da regra expressao")
@@ -374,7 +382,8 @@ def p_expressao_logica(t):
     '''
     pai = criar_no('expressao_logica')
     t[0] = pai
-    t[1].parent = pai
+    t[1].parent = pai # expressao_logica -> expressao_simples 
+    # operador logico
     if len(t) > 2:
         t[2].parent = pai
         t[3].parent = pai
@@ -391,8 +400,9 @@ def p_expressao_simples(t):
     | expressao_logica operador_relacional expressao_simples
     '''
     pai = criar_no('expressao_simples')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai # expressao_simples
+    t[1].parent = pai # expressao_aditiva 
+    # operador relacional
     if len(t) > 2:
         t[2].parent = pai
         t[3].parent = pai
@@ -409,8 +419,9 @@ def p_expressao_aditiva(t):
     | expressao_aditiva operador_soma expressao_multiplicativa
     '''
     pai = criar_no('expressao_aditiva')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai # expressao aditiva
+    t[1].parent = pai # expressao multiplicativa 
+    # expressao aditiva e operador_soma
     if len(t) > 2:
         t[2].parent = pai
         t[3].parent = pai
@@ -427,8 +438,9 @@ def p_expressao_multiplicativa(t):
     | expressao_multiplicativa operador_multiplicacao expressao_unaria
     ''' 
     pai = criar_no('expressao_multiplicativa')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai  # expressao multiplicativa
+    t[1].parent = pai # expressao unaria 
+    # operador multiplicacao
     if len(t) > 2:
         t[2].parent = pai
         t[3].parent = pai 
@@ -447,12 +459,14 @@ def p_expressao_unaria(t):
     | NAO fator
     '''
     pai = criar_no('expressao_unaria')
-    t[0] = pai
+    t[0] = pai # expressao unaria 
+    # se for a negacao
     if t[1] == '!':
-        t[1] = criar_no('NAO', pai)
+        t[1] = criar_no('NAO', pai) 
+    # senao     
     else:
-        t[1].parent = pai
-
+        t[1].parent = pai # fator 
+    # operador soma    
     if len(t) > 2:
         t[2].parent = pai
 def p_expressao_unaria_erro(t):
