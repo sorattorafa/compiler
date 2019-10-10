@@ -10,7 +10,10 @@ from anytree.exporter import DotExporter
 # variáveis auxiliares para criação da árvore
 contador = 0  # utilizado para indicar o número do nó criado
 raiz = None # raiz
-funcoes_id = []
+funcoes_id = [] 
+
+# p.lineno(num). Return the line number for symbol num
+# p.lexpos(num). Return the lexing position for symbol num 
  
 # declaracao de variaveis 
 def criar_variavel(pai,line2,t):
@@ -26,8 +29,8 @@ def criar_no(name, parent=None, line=None):
     contador += 1 
     # estrutura para mostrar o número e o tipo do nó
     if parent and line:
-        return Node( str(contador) + '#' + name, parent=parent, line=line)
-    if parent:
+        return Node( str(contador) + '#' + name, parent=parent, line=line) # ID
+    elif parent:
         return Node(str(contador) + '#' + name, parent=parent)
     else:
         return Node(str(contador) + '#' + name) 
@@ -60,16 +63,6 @@ def p_lista_operacoes(t):
 def p_lista_operacoes_erro(t):
     """ lista_declaracoes : error declaracao"""
     print ("Erro na regra lista_declaracoes") 
-
-def p_lista_operacoes_erro_2(t):
-    ''' lista_declaracoes : lista_declaracoes error
-    '''
-    print ("Erro na regra lista_declaracoes")
-
-def p_lista_operacoes_erro_3(t):
-    ''' lista_declaracoes : error
-    '''
-    print ("Erro na regra lista_declaracoes")    
 
 def p_declaracao(t):
     ''' declaracao : declaracao_variaveis
@@ -276,32 +269,6 @@ def p_acao_erro(t):
     ''' acao : error'''
     print ("Erro na geração da regra acao")
 
-def p_se(t):
-    ''' se : SE expressao ENTAO corpo FIM
-    | SE expressao ENTAO corpo SENAO corpo FIM
-    '''
-    pai = criar_no('se')
-    t[0] = pai # se
-    t[1] = criar_no('SE', pai, t.lineno(1)) # se -> SE
-    t[2].parent = pai # se -> SE expressao
-    t[3] = criar_no('ENTAO', pai) # se-> SE Expressao Então
-    t[4].parent = pai # corpo 
-    # se tiver um senão
-    if len(t) == 8:
-        t[5] = criar_no('SENAO', pai)
-        t[6].parent = pai
-        t[7] = criar_no('FIM', pai) 
-    # fim sem o senão
-    else:
-        t[5] = criar_no('FIM', pai)
-def p_se_erro(t):
-    ''' se : SE error ENTAO corpo FIM
-    | SE expressao ENTAO error FIM
-    | SE error ENTAO corpo SENAO corpo FIM
-    | SE expressao ENTAO error SENAO corpo FIM
-    | SE expressao ENTAO corpo SENAO error FIM
-    '''
-    print ("Erro na geração da regra se")
 
 def p_repita(t):
     ''' repita : REPITA corpo ATE expressao'''
@@ -353,7 +320,34 @@ def p_escreva(t):
 def p_escreva_erro(t):
     ''' escreva : ESCREVA ABREPARENTESES error FECHAPARENTESES'''
     print ("Erro na geração da regra leia")
-
+ 
+def p_se(t):
+    ''' se : SE expressao ENTAO corpo FIM
+    | SE expressao ENTAO corpo SENAO corpo FIM
+    '''
+    pai = criar_no('se')
+    t[0] = pai # se
+    t[1] = criar_no('SE', pai, t.lineno(1)) # se -> SE
+    t[2].parent = pai # se -> SE expressao
+    t[3] = criar_no('ENTAO', pai) # se-> SE Expressao Então
+    t[4].parent = pai # corpo 
+    # se tiver um senão
+    if len(t) == 8:
+        t[5] = criar_no('SENAO', pai)
+        t[6].parent = pai
+        t[7] = criar_no('FIM', pai) 
+    # fim sem o senão
+    else:
+        t[5] = criar_no('FIM', pai)
+def p_se_erro(t):
+    ''' se : SE error ENTAO corpo FIM
+    | SE expressao ENTAO error FIM
+    | SE error ENTAO corpo SENAO corpo FIM
+    | SE expressao ENTAO error SENAO corpo FIM
+    | SE expressao ENTAO corpo SENAO error FIM
+    '''
+    print ("Erro na geração da regra se") 
+    
 def p_retorna(t):
     ''' retorna : RETORNA ABREPARENTESES expressao FECHAPARENTESES '''
     pai = criar_no('retorna')
@@ -572,14 +566,14 @@ def p_operador_relacional(t):
     t[0] = pai # t[0] -> op relacional
     if t[1] == '<':
         t[1] = criar_no('MENOR', pai) # op relacional -> menor
-    elif t[1] == '>':
-        t[1] = criar_no('MAIOR', pai) # op relacional -> maior
-    elif t[1] == '=':
-        t[1] = criar_no('IGUALDADE', pai) # op relacional -> igual
     elif t[1] == '<>':
         t[1] = criar_no('DIFERENTE', pai) # op relacional -> diferente
     elif t[1] == '>=':
-        t[1] = criar_no('MAIOR_GUAL', pai) # op relacional -> maior igual
+        t[1] = criar_no('MAIOR_GUAL', pai) # op relacional -> maior igual 
+    elif t[1] == '>':
+        t[1] = criar_no('MAIOR', pai) # op relacional -> maior
+    elif t[1] == '=':
+        t[1] = criar_no('IGUALDADE', pai) # op relacional -> igual    
     else:
         t[1] = criar_no('MENORIGUAL', pai) # # op relacional -> menor igual
 # operador aritmetico
@@ -617,12 +611,12 @@ def p_operador_not(t):
     t[0] = pai # operador negacao
     t[1] = criar_no('NAO', pai) # op -> nao
  
-# somente t[0] como pai
 def p_vazio(t):
     ''' vazio : ''' 
     pai = criar_no('vazio') 
     t[0] = pai # vazio  
-    pass    
+    pass     
+
 # funcao de erro
 def p_erro(t): 
     # se for error de sintaxe    
@@ -634,20 +628,25 @@ def p_erro(t):
         parser.restart() 
         # gera uma  execao de erro
         raise Exception("Erro") 
-
+ 
+# main 
+#  
 # ativa o parser  
-parser = yacc.yacc(debug=True) 
+parser = yacc.yacc(debug=True, tabmodule='fooparsetab') 
 #recebe o arquivo com códgio tpp
 code = open(sys.argv[1]) 
 # le arquivo
 code_text = code.read() 
 # realiza a analise sintatica do código
 try:
-    parser.parse(code_text, debug=False)
+    result = parser.parse(code_text, debug=False) 
+    print(result)
 except Exception as e:
     raise e 
-# se não houver uma raíz possui erro
-if not raiz:
-    raise Exception('Nao foi possivel gerar a árvore') 
-# se houver uma raiz então pode-se mostrar a ávore sintática dessa raiz  
-DotExporter(raiz).to_picture("arvore-sintatica.png")
+code.close()
+# se houver uma raiz então pode-se mostrar a ávore sintática dessa raiz 
+# se não houver uma raíz possui erro de construção sintática  
+if (raiz):  
+        DotExporter(raiz).to_picture("arvore-sintatica.png")
+else:
+    raise Exception('Nao foi possivel gerar a árvore')
