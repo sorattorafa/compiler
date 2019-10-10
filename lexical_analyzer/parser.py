@@ -1,5 +1,5 @@
 # coding=utf-8  
-# dependencias utilizadas
+# dependencias utilizadas no python3
 from ast import AST
 from ply import yacc
 from lexer import tokens
@@ -50,7 +50,7 @@ def p_programa_erro(t):
     print ("Erro na regra programa")  
 
 # segundo nó (programa->lista de declaracoes)    
-def p_lista_operacoes(t):
+def p_lista_declaracoes(t):
     ''' lista_declaracoes : lista_declaracoes declaracao
     | declaracao
     '''
@@ -60,7 +60,7 @@ def p_lista_operacoes(t):
     t[1].parent = pai
     if len(t) > 2:
         t[2].parent = pai 
-def p_lista_operacoes_erro(t):
+def p_lista_declaracoes_erro(t):
     """ lista_declaracoes : error declaracao"""
     print ("Erro na regra lista_declaracoes") 
 
@@ -163,95 +163,6 @@ def p_tipo_variavel(t):
     pai = criar_no('tipo') # tipo
     t[0] = pai
     t[1] = criar_no(t[1].upper(), pai) # tipo -> inteiro ou flutuante
-
-def p_func_declaracao(t):
-    ''' declaracao_funcao : tipo cabecalho
-    | cabecalho
-    '''
-    pai = criar_no('declaracao_funcao')
-    t[0] = pai # declaracao de funcao
-    t[1].parent = pai # tipo
-    if len(t) == 3:
-        t[2].parent = pai # cabecalho
-def p_func_declaracao_erro(t):
-    ''' declaracao_funcao : error cabecalho
-    | tipo error
-    | error
-    '''
-    print ("Erro na geração da regra declaracao_funcao")
-
-def p_cabecalho_func(t):
-    ''' cabecalho : ID ABREPARENTESES lista_parametros FECHAPARENTESES corpo FIM'''
-    global funcoes_id
-    funcoes_id.append(t[1]) # armeza o id da funcao 
-    pai = criar_no('cabecalho')
-    t[0] = pai # cabecalho
-    t[1] = criar_no('ID-' + t[1], pai, t.lineno(1)) # id
-    t[2] = criar_no('ABREPARENTESES', pai) # (
-    t[3].parent = pai # lista de parametros
-    t[4] = criar_no('FECHAPARENTESES', pai) # )
-    t[5].parent = pai # corpo
-    t[6] = criar_no('FIM', pai) #fim
-
-def p_cabecalho_func_erro(t):
-    ''' cabecalho : ID ABREPARENTESES error FECHAPARENTESES corpo FIM
-    | ID ABREPARENTESES lista_parametros FECHAPARENTESES error FIM
-    '''
-    print ("Erro na geração da regra declaracao_funcao")
-
-def p_lista_parametros(t):
-    ''' lista_parametros : lista_parametros VIRGULA lista_parametros
-    | parametro
-    | vazio
-    '''
-    pai = criar_no('lista_parametros')
-    t[0] = pai # lista de parametros
-    t[1].parent = pai 
-    if len(t) > 2:
-        t[2] = criar_no('VIRUGLA', pai)
-        t[3].parent = pai # lista de parametros
-def p_lista_parametros_erro(t):
-    ''' lista_parametros : error VIRGULA lista_parametros
-    | lista_parametros VIRGULA error
-    | error
-    '''
-    print ("Erro na geração da regra lista_parametros")
-
-def p_parametro(t):
-    ''' parametro : tipo DOISPONTOS ID
-    | parametro ABRECOLCHETE FECHACOLCHETE
-    '''
-    pai = criar_no('parametro')
-    t[0] = pai
-    t[1].parent = pai
-    if t[2] == ':':
-        t[2] = criar_no('DOISPONTOS', pai)
-        t[3] = criar_no('ID-' + t[3], pai, line=t.lineno(3))
-    else:
-        t[2] = criar_no('ABRECOLCHETE', pai)
-        t[3] = criar_no('FECHACOLCHETE', pai, line=t.lineno(3))
-def p_parametro_erro(t):
-    ''' parametro : error DOISPONTOS ID
-    | error ABRECOLCHETE FECHACOLCHETE
-    '''
-    print ("Erro na geração da regra parametro")
-
-def p_corpo(t):
-    ''' corpo : corpo acao
-    | vazio
-    | acao
-    '''
-    pai = criar_no('corpo')
-    t[0] = pai # corpo
-    t[1].parent = pai # corpo : corpo
-    if len(t) == 3:
-        t[2].parent = pai # acao
-def p_corpo_erro(t):
-    ''' corpo : error acao
-    | corpo error
-    | error
-    '''
-    print ("Erro na geração da regra corpo")
 
 def p_acao(t):
     ''' acao : expressao
@@ -628,6 +539,95 @@ def p_erro(t):
         parser.restart() 
         # gera uma  execao de erro
         raise Exception("Erro") 
+
+def p_func_declaracao(t):
+    ''' declaracao_funcao : tipo cabecalho
+    | cabecalho
+    '''
+    pai = criar_no('declaracao_funcao')
+    t[0] = pai # declaracao de funcao
+    t[1].parent = pai # tipo
+    if len(t) == 3:
+        t[2].parent = pai # cabecalho
+def p_func_declaracao_erro(t):
+    ''' declaracao_funcao : error cabecalho
+    | tipo error
+    | error
+    '''
+    print ("Erro na geração da regra declaracao_funcao")
+
+def p_cabecalho_func(t):
+    ''' cabecalho : ID ABREPARENTESES lista_parametros FECHAPARENTESES corpo FIM'''
+    global funcoes_id
+    funcoes_id.append(t[1]) # armeza o id da funcao 
+    pai = criar_no('cabecalho')
+    t[0] = pai # cabecalho
+    t[1] = criar_no('ID-' + t[1], pai, t.lineno(1)) # id
+    t[2] = criar_no('ABREPARENTESES', pai) # (
+    t[3].parent = pai # lista de parametros
+    t[4] = criar_no('FECHAPARENTESES', pai) # )
+    t[5].parent = pai # corpo
+    t[6] = criar_no('FIM', pai) #fim
+
+def p_cabecalho_func_erro(t):
+    ''' cabecalho : ID ABREPARENTESES error FECHAPARENTESES corpo FIM
+    | ID ABREPARENTESES lista_parametros FECHAPARENTESES error FIM
+    '''
+    print ("Erro na geração da regra declaracao_funcao")
+
+def p_lista_parametros(t):
+    ''' lista_parametros : lista_parametros VIRGULA lista_parametros
+    | parametro
+    | vazio
+    '''
+    pai = criar_no('lista_parametros')
+    t[0] = pai # lista de parametros
+    t[1].parent = pai 
+    if len(t) > 2:
+        t[2] = criar_no('VIRUGLA', pai)
+        t[3].parent = pai # lista de parametros
+def p_lista_parametros_erro(t):
+    ''' lista_parametros : error VIRGULA lista_parametros
+    | lista_parametros VIRGULA error
+    | error
+    '''
+    print ("Erro na geração da regra lista_parametros")
+
+def p_parametro(t):
+    ''' parametro : tipo DOISPONTOS ID
+    | parametro ABRECOLCHETE FECHACOLCHETE
+    '''
+    pai = criar_no('parametro')
+    t[0] = pai
+    t[1].parent = pai
+    if t[2] == ':':
+        t[2] = criar_no('DOISPONTOS', pai)
+        t[3] = criar_no('ID-' + t[3], pai, line=t.lineno(3))
+    else:
+        t[2] = criar_no('ABRECOLCHETE', pai)
+        t[3] = criar_no('FECHACOLCHETE', pai, line=t.lineno(3))
+def p_parametro_erro(t):
+    ''' parametro : error DOISPONTOS ID
+    | error ABRECOLCHETE FECHACOLCHETE
+    '''
+    print ("Erro na geração da regra parametro")
+
+def p_corpo(t):
+    ''' corpo : corpo acao
+    | vazio
+    | acao
+    '''
+    pai = criar_no('corpo')
+    t[0] = pai # corpo
+    t[1].parent = pai # corpo : corpo
+    if len(t) == 3:
+        t[2].parent = pai # acao
+def p_corpo_erro(t):
+    ''' corpo : error acao
+    | corpo error
+    | error
+    '''
+    print ("Erro na geração da regra corpo")
  
 # main 
 #  
@@ -647,6 +647,6 @@ code.close()
 # se houver uma raiz então pode-se mostrar a ávore sintática dessa raiz 
 # se não houver uma raíz possui erro de construção sintática  
 if (raiz):  
-        DotExporter(raiz).to_picture("arvore-sintatica.png")
+    DotExporter(raiz).to_picture("arvore-sintatica.png")
 else:
     raise Exception('Nao foi possivel gerar a árvore')
