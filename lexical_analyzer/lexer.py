@@ -105,12 +105,16 @@ def t_error(t):
 
 lexer = lex.lex(debug=False) 
 
-if __name__ == '__main__':
-    lista_tokens = []
-    new_token = {}
+if __name__ == '__main__': 
+    # list of tokens
+    lista_tokens = [] 
+    # dict with type, line and value
+    new_token = {} 
+    # open argv and read file
     code = open(sys.argv[1])
     code_text = code.read()
-    lex.input(code_text)
+    lex.input(code_text) 
+    # scanner
     while True:
         tok = lex.token()
         if not tok:

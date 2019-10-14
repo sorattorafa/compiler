@@ -598,13 +598,13 @@ def p_parametro(t):
     | parametro ABRECOLCHETE FECHACOLCHETE
     '''
     pai = criar_no('parametro')
-    t[0] = pai
-    t[1].parent = pai
+    t[0] = pai # parametro
+    t[1].parent = pai # : parametro
     if t[2] == ':':
-        t[2] = criar_no('DOISPONTOS', pai)
+        t[2] = criar_no('DOISPONTOS', pai) # 1 opc
         t[3] = criar_no('ID-' + t[3], pai, line=t.lineno(3))
     else:
-        t[2] = criar_no('ABRECOLCHETE', pai)
+        t[2] = criar_no('ABRECOLCHETE', pai) # 2 opc
         t[3] = criar_no('FECHACOLCHETE', pai, line=t.lineno(3))
 def p_parametro_erro(t):
     ''' parametro : error DOISPONTOS ID
@@ -628,25 +628,27 @@ def p_corpo_erro(t):
     | error
     '''
     print ("Erro na geração da regra corpo")
- 
-# main 
-#  
-# ativa o parser  
-parser = yacc.yacc(debug=True, tabmodule='fooparsetab') 
-#recebe o arquivo com códgio tpp
-code = open(sys.argv[1]) 
-# le arquivo
-code_text = code.read() 
-# realiza a analise sintatica do código
-try:
-    result = parser.parse(code_text, debug=False) 
-    print(result)
-except Exception as e:
-    raise e 
-code.close()
-# se houver uma raiz então pode-se mostrar a ávore sintática dessa raiz 
-# se não houver uma raíz possui erro de construção sintática  
-if (raiz):  
-    DotExporter(raiz).to_picture("arvore-sintatica.png")
-else:
-    raise Exception('Nao foi possivel gerar a árvore')
+
+if __name__ == '__main__': 
+        # main 
+        #  
+        # ativa o parser  
+        parser = yacc.yacc(debug=True, tabmodule='fooparsetab') 
+        #recebe o arquivo com códgio tpp
+        code = open(sys.argv[1]) 
+        # le arquivo
+        code_text = code.read() 
+        # realiza a analise sintatica do código
+        try:
+                result = parser.parse(code_text, debug=False)  
+                print('A raíz do programa: ',result) 
+        except Exception as e:
+                raise e 
+        code.close()
+        # se houver uma raiz então pode-se mostrar a ávore sintática dessa raiz 
+        # se não houver uma raíz possui erro de construção sintática  
+        if (raiz):   
+                print("Gerando imagem da árvore...")
+                DotExporter(raiz).to_picture("arvore-sintatica.png") 
+        else:
+                raise Exception('Houve erro ao tentar gerar a árvore') 
