@@ -16,10 +16,13 @@ funcoes_id = []
 # p.lexpos(num). Return the lexing position for symbol num 
  
 # declaracao de variaveis 
-def criar_variavel(pai,line2,t):
-    global contador  
-    var = Node(str(contador) + '#' + 'ID-' + t[1], parent=pai, line=line2)
-    return var       
+def criar_variavel(pai,line2,t): 
+    # get contador atual    
+    global contador   
+    # var : contador - ID -  nome da variável
+    var = Node(str(contador) + '#' + 'ID-' + t[1], parent=pai, line=line2) 
+    # retorna var
+    return var        
 
 # arvore sintática é implementada com nós 
 # um nó tem as seguintes informacoes: 
@@ -523,7 +526,7 @@ def p_operador_not(t):
     t[1] = criar_no('NAO', pai) # op -> nao
  
 def p_vazio(t):
-    ''' vazio : ''' 
+    ' vazio : '
     pai = criar_no('vazio') 
     t[0] = pai # vazio  
     pass     
@@ -532,11 +535,14 @@ def p_vazio(t):
 def p_erro(t): 
     # se for error de sintaxe    
     if t: 
-        # mostra uma exeção indicando a linha e o token         
-        raise Exception("Erro de sintaxe na linha {} no token '{}'".format(t.lineno, t.value))
+        # mostra uma exeção indicando a linha e o token     
+        # # print("Erro sintático na linha %d - Posição %d: '%s'" % (p.lineno, p.lexpos, p.value))     
+        raise Exception("Erro sintático na linha {} no token '{}'".format(t.lineno, t.value))
     else: 
         # reinicia o parser    
-        parser.restart() 
+        parser.restart()  
+        print("Erro sintático nas definições!")
+        exit(1)
         # gera uma  execao de erro
         raise Exception("Erro") 
 
