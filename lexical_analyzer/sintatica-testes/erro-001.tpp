@@ -1,8 +1,8 @@
 inteiro: a
 inteiro: b
-inteiro: c[]
-flutuante: d[10][]
-flutuante: e[1024][
+inteiro: c[2]
+flutuante: d[10][32]
+flutuante: e[1024][23]
 
 inteiro principal()
     leia(a)

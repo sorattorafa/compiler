@@ -1,6 +1,6 @@
 # coding=utf-8  
 # dependencias utilizadas no python3
-from ast import AST
+#from ast import AST
 from ply import yacc
 from lexer import tokens
 from anytree import Node 
@@ -39,13 +39,13 @@ def criar_no(name, parent=None, line=None):
         return Node(str(contador) + '#' + name) 
  
 # primeiro nó raiz  
-def p_programa(t):
+def p_programa(p):
     """ programa : lista_declaracoes """
     global raiz 
     raiz = criar_no('programa-raiz')  # cria um nó raiz
-    t[0] = raiz # atribui ele pra raiz t[0]
+    p[0] = raiz # atribui ele pra raiz t[0]
     # atribui a lista de declarações como filho do programa
-    t[1].parent = raiz  
+    p[1].parent = raiz  
     
 # erro ao criar o primeiro no    
 def p_programa_erro(t):
@@ -244,11 +244,11 @@ def p_se(t):
     t[1] = criar_no('SE', pai, t.lineno(1)) # se -> SE
     t[2].parent = pai # se -> SE expressao
     t[3] = criar_no('ENTAO', pai) # se-> SE Expressao Então
-    t[4].parent = pai # corpo 
+    t[4].parent = pai # corpo
     # se tiver um senão
     if len(t) == 8:
         t[5] = criar_no('SENAO', pai)
-        t[6].parent = pai
+        t[6].parent = pai # corpo
         t[7] = criar_no('FIM', pai) 
     # fim sem o senão
     else:
@@ -657,4 +657,4 @@ if __name__ == '__main__':
                 print("Gerando imagem da árvore...")
                 DotExporter(raiz).to_picture("arvore-sintatica.png") 
         else:
-                raise Exception('Houve erro ao tentar gerar a árvore') 
+                raise Exception('Houve erro ao tentar gerar a árvore')

@@ -1,4 +1,4 @@
-inteiro: 
+inteiro: a
 
 inteiro principal()
 
