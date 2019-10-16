@@ -17,10 +17,8 @@ funcoes_id = []
  
 # declaracao de variaveis 
 def criar_variavel(pai,line2,p): 
-    # get contador atual    
-    global contador   
     # var : contador - ID -  nome da variável
-    var = Node(str(contador) + '#' + 'ID-' + p[1], parent=pai, line=line2) 
+    var = Node('ID-' + p[1], parent=pai, line=line2) 
     # retorna var
     return var        
 
@@ -28,15 +26,13 @@ def criar_variavel(pai,line2,p):
 # um nó tem as seguintes informacoes: 
 # (número # nome_da_regra) 
 def criar_no(name, parent=None, line=None):
-    global contador
-    contador += 1 
     # estrutura para mostrar o número e o tipo do nó
     if parent and line:
-        return Node( str(contador) + '#' + name, parent=parent, line=line) # ID
+        return Node(name, parent=parent, line=line) # ID
     elif parent:
-        return Node(str(contador) + '#' + name, parent=parent)
+        return Node(name, parent=parent)
     else:
-        return Node(str(contador) + '#' + name) 
+        return Node(name) 
  
 # primeiro nó raiz  
 def p_programa(p):
