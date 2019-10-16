@@ -1,1 +1,2 @@
-inteiro: a[20][20]
+inteiro: a 
+a := 0.56

@@ -16,11 +16,11 @@ funcoes_id = []
 # p.lexpos(num). Return the lexing position for symbol num 
  
 # declaracao de variaveis 
-def criar_variavel(pai,line2,t): 
+def criar_variavel(pai,line2,p): 
     # get contador atual    
     global contador   
     # var : contador - ID -  nome da variável
-    var = Node(str(contador) + '#' + 'ID-' + t[1], parent=pai, line=line2) 
+    var = Node(str(contador) + '#' + 'ID-' + p[1], parent=pai, line=line2) 
     # retorna var
     return var        
 
@@ -48,126 +48,126 @@ def p_programa(p):
     p[1].parent = raiz  
     
 # erro ao criar o primeiro no    
-def p_programa_erro(t):
+def p_programa_erro(p):
     """ programa : error"""
     print ("Erro na regra programa")  
 
 # segundo nó (programa->lista de declaracoes)    
-def p_lista_declaracoes(t):
+def p_lista_declaracoes(p):
     ''' lista_declaracoes : lista_declaracoes declaracao
     | declaracao
     '''
     pai = criar_no('lista_declaracoes') 
     # programa->lista_declaracoes
-    t[0] = pai 
-    t[1].parent = pai
-    if len(t) > 2:
-        t[2].parent = pai 
-def p_lista_declaracoes_erro(t):
+    p[0] = pai 
+    p[1].parent = pai
+    if len(p) == 3:
+        p[2].parent = pai 
+def p_lista_declaracoes_erro(p):
     """ lista_declaracoes : error declaracao"""
     print ("Erro na regra lista_declaracoes") 
 
-def p_declaracao(t):
+def p_declaracao(p):
     ''' declaracao : declaracao_variaveis
     | inicializacao_variaveis
     | declaracao_funcao
     ''' 
     pai = criar_no('declaracao') 
     # lista de declaracoes -> declaracao
-    t[0] = pai 
+    p[0] = pai 
     # declaracao -> ...
-    t[1].parent = pai
-def p_declaracao_erro(t):
+    p[1].parent = pai
+def p_declaracao_erro(p):
     ''' declaracao : error '''
     print ("Erro na regra de declaração")
 
-def p_declaracao_de_variavel(t):
+def p_declaracao_de_variavel(p):
     ''' declaracao_variaveis : tipo DOISPONTOS lista_variaveis''' 
     # cria no de declaracao de variaveis
     pai = criar_no('declaracao_variaveis') 
-    t[0] = pai 
-    t[1].parent = pai #tipo
-    t[2] = criar_no('DOISPONTOS', pai) # :
-    t[3].parent = pai # lista
-def p_declaracao_de_variavel_erro(t):
+    p[0] = pai 
+    p[1].parent = pai #tipo
+    p[2] = criar_no('DOISPONTOS', pai) # :
+    p[3].parent = pai # lista
+def p_declaracao_de_variavel_erro(p):
     ''' declaracao_variaveis : error DOISPONTOS lista_variaveis'''
     print ("Erro na regra de declaracao_variaveis")
 
-def p_variaveis_inicializacao(t):
+def p_variaveis_inicializacao(p):
     ''' inicializacao_variaveis : atribuicao'''
     pai = criar_no('inicializacao_variaveis') 
-    t[0] = pai # inicicializacao
-    t[1].parent = pai # atribuicao
-def p_variaveis_inicializacao_erro(t):
+    p[0] = pai # inicicializacao
+    p[1].parent = pai # atribuicao
+def p_variaveis_inicializacao_erro(p):
     ''' inicializacao_variaveis : error'''
     print ("Erro na regra de inicializacao_variaveis")
 
-def p_lista_variaveis_inicializacao(t):
+def p_lista_variaveis_inicializacao(p):
     ''' lista_variaveis : lista_variaveis VIRGULA var
     | var
     '''
     pai = criar_no('lista_variaveis')
-    t[0] = pai #lista variaveis
-    t[1].parent = pai # = lista variaveis
-    if (len(t) > 2):
-        t[2] = criar_no('VIRGULA', pai) # ,
-        t[3].parent = pai # var
+    p[0] = pai #lista variaveis
+    p[1].parent = pai # = lista variaveis
+    if (len(p) > 2):
+        p[2] = criar_no('VIRGULA', pai) # ,
+        p[3].parent = pai # var
 def p_lista_variaveis_inicializacao_erro(t):
     ''' lista_variaveis : error VIRGULA var'''
     print ("Erro na regra de lista_variaveis")
 
-def p_variavel(t):
+def p_variavel(p):
     ''' var : ID
     | ID indice
     '''
     pai = criar_no('var')
-    t[0] = pai
+    p[0] = pai
     global contador
     contador+=1 
     # t[1] = Node(str(contador) + '#' + 'ID-' + t[1], parent=pai, line=t.lineno(1))
-    t[1] = criar_variavel(pai,t.lineno(1),t)  
+    p[1] = criar_variavel(pai,p.lineno(1),p)  
     # se tiver indice
-    if len(t) > 2:
-        t[2].parent = pai
-def p_variavel_erro(t):
+    if len(p) > 2:
+        p[2].parent = pai
+def p_variavel_erro(p):
     ''' var : ID error '''
     print ("Erro na regra de var")
 
-def p_indice(t):
+def p_indice(p):
     ''' indice : indice ABRECOLCHETE expressao FECHACOLCHETE
     | ABRECOLCHETE expressao FECHACOLCHETE
     ''' 
     # utilizado em vetores e matrizes para saber o indice
     pai = criar_no('indice')
-    t[0] = pai 
+    p[0] = pai 
     #vetores
-    if len(t) == 4:
-        t[1] = criar_no('ABRECOLCHETE', pai)
-        t[2].parent = pai
-        t[3] = criar_no('FECHACOLCHETE', pai) 
+    if len(p) == 4:
+        p[1] = criar_no('ABRECOLCHETE', pai)
+        p[2].parent = pai
+        p[3] = criar_no('FECHACOLCHETE', pai) 
     # matrizes    
     else:
-        t[1].parent = pai
-        t[2] = criar_no('ABRECOLCHETE', pai)
-        t[3].parent = pai
-        t[4] = criar_no('FECHACOLCHETE', pai) 
+        p[1].parent = pai
+        p[2] = criar_no('ABRECOLCHETE', pai)
+        p[3].parent = pai
+        p[4] = criar_no('FECHACOLCHETE', pai) 
         
-def p_indice_erro(t):
+def p_indice_erro(p):
     ''' indice : indice ABRECOLCHETE error FECHACOLCHETE
     | ABRECOLCHETE error FECHACOLCHETE
     | error ABRECOLCHETE expressao FECHACOLCHETE
     '''
     print ("Erro na geração da regra indice")
 
-def p_tipo_variavel(t):
+def p_tipo_variavel(p):
     ''' tipo : INTEIRO
     | FLUTUANTE
     '''
     pai = criar_no('tipo') # tipo
-    t[0] = pai
-    t[1] = criar_no(t[1].upper(), pai) # tipo -> inteiro ou flutuante
+    p[0] = pai
+    p[1] = criar_no(p[1], pai) # tipo -> inteiro ou flutuante
 
-def p_acao(t):
+def p_acao(p):
     ''' acao : expressao
     | declaracao_variaveis
     | se
@@ -177,83 +177,83 @@ def p_acao(t):
     | retorna
     '''
     pai = criar_no('acao')
-    t[0] = pai # acao
-    t[1].parent = pai # acao -> expressao
-def p_acao_erro(t):
+    p[0] = pai # acao
+    p[1].parent = pai # acao -> expressao
+def p_acao_erro(p):
     ''' acao : error'''
     print ("Erro na geração da regra acao")
 
 
-def p_repita(t):
+def p_repita(p):
     ''' repita : REPITA corpo ATE expressao'''
     pai = criar_no('repita')
-    t[0] = pai # repita
-    t[1] = criar_no('REPITA', pai) # repita -> REPITA
-    t[2].parent = pai # corpo
-    t[3] = criar_no('ATE', pai, t.lineno(3))
-    t[4].parent = pai # expressao
-def p_repita_erro(t):
+    p[0] = pai # repita
+    p[1] = criar_no('REPITA', pai) # repita -> REPITA
+    p[2].parent = pai # corpo
+    p[3] = criar_no('ATE', pai, p.lineno(3))
+    p[4].parent = pai # expressao
+def p_repita_erro(p):
     ''' repita : REPITA corpo ATE error
     | REPITA error ATE expressao
     '''
     print ("Erro na geração da regra repita")
 
-def p_atribuicao(t):
+def p_atribuicao(p):
     ''' atribuicao : var ATRIBUICAO expressao'''
     pai = criar_no('atribuicao')
-    t[0] = pai # atribuição 
-    t[1].parent = pai # atribuicao -> var
-    t[2] = criar_no('ATRIBUICAO', pai)
-    t[3].parent = pai # expressao
-def p_atribuicao_erro(t):
+    p[0] = pai # atribuição 
+    p[1].parent = pai # atribuicao -> var
+    p[2] = criar_no('ATRIBUICAO', pai)
+    p[3].parent = pai # expressao
+def p_atribuicao_erro(p):
     ''' atribuicao : var ATRIBUICAO error
     | error ATRIBUICAO expressao
     '''
     print('Erro na geração da regra de atribuicao')
 
-def p_leia(t):
+def p_leia(p):
     ''' leia : LEIA ABREPARENTESES expressao FECHAPARENTESES'''
     pai = criar_no('leia')
-    t[0] = pai # leia
-    t[1] = criar_no('LEIA', pai)
-    t[2] = criar_no('ABREPARENTESES', pai)
-    t[3].parent = pai # expressao
-    t[4] = criar_no('FECHAPARENTESES', pai)
-def p_leia_erro(t):
+    p[0] = pai # leia
+    p[1] = criar_no('LEIA', pai)
+    p[2] = criar_no('ABREPARENTESES', pai)
+    p[3].parent = pai # expressao
+    p[4] = criar_no('FECHAPARENTESES', pai)
+def p_leia_erro(p):
     ''' leia : LEIA ABREPARENTESES error FECHAPARENTESES'''
     print ("Erro na geração da regra leia")
 
-def p_escreva(t):
+def p_escreva(p):
     ''' escreva : ESCREVA ABREPARENTESES expressao FECHAPARENTESES'''
     pai = criar_no('escreva')
-    t[0] = pai # escreva
-    t[1] = criar_no('ESCREVA', pai)
-    t[2] = criar_no('ABREPARENTESES', pai)
-    t[3].parent = pai # expressao
-    t[4] = criar_no('FECHAPARENTESES', pai)
-def p_escreva_erro(t):
+    p[0] = pai # escreva
+    p[1] = criar_no('ESCREVA', pai)
+    p[2] = criar_no('ABREPARENTESES', pai)
+    p[3].parent = pai # expressao
+    p[4] = criar_no('FECHAPARENTESES', pai)
+def p_escreva_erro(p):
     ''' escreva : ESCREVA ABREPARENTESES error FECHAPARENTESES'''
     print ("Erro na geração da regra leia")
  
-def p_se(t):
+def p_se(p):
     ''' se : SE expressao ENTAO corpo FIM
     | SE expressao ENTAO corpo SENAO corpo FIM
     '''
     pai = criar_no('se')
-    t[0] = pai # se
-    t[1] = criar_no('SE', pai, t.lineno(1)) # se -> SE
-    t[2].parent = pai # se -> SE expressao
-    t[3] = criar_no('ENTAO', pai) # se-> SE Expressao Então
-    t[4].parent = pai # corpo
+    p[0] = pai # se
+    p[1] = criar_no('SE', pai, p.lineno(1)) # se -> SE
+    p[2].parent = pai # se -> SE expressao
+    p[3] = criar_no('ENTAO', pai) # se-> SE Expressao Então
+    p[4].parent = pai # corpo
     # se tiver um senão
-    if len(t) == 8:
-        t[5] = criar_no('SENAO', pai)
-        t[6].parent = pai # corpo
-        t[7] = criar_no('FIM', pai) 
+    if len(p) == 8:
+        p[5] = criar_no('SENAO', pai)
+        p[6].parent = pai # corpo
+        p[7] = criar_no('FIM', pai) 
     # fim sem o senão
     else:
-        t[5] = criar_no('FIM', pai)
-def p_se_erro(t):
+        p[5] = criar_no('FIM', pai)
+def p_se_erro(p):
     ''' se : SE error ENTAO corpo FIM
     | SE expressao ENTAO error FIM
     | SE error ENTAO corpo SENAO corpo FIM
@@ -262,41 +262,41 @@ def p_se_erro(t):
     '''
     print ("Erro na geração da regra se") 
     
-def p_retorna(t):
+def p_retorna(p):
     ''' retorna : RETORNA ABREPARENTESES expressao FECHAPARENTESES '''
     pai = criar_no('retorna')
-    t[0] = pai # retorna
-    t[1] = criar_no('RETORNA', pai, t.lineno(1))
-    t[2] = criar_no('ABREPARENTESES', pai)
-    t[3].parent = pai # expressao
-    t[4] = criar_no('FECHAPARENTESES', pai)
-def p_retorna_erro(t):
+    p[0] = pai # retorna
+    p[1] = criar_no('RETORNA', pai, p.lineno(1))
+    p[2] = criar_no('ABREPARENTESES', pai)
+    p[3].parent = pai # expressao
+    p[4] = criar_no('FECHAPARENTESES', pai)
+def p_retorna_erro(p):
     ''' retorna : RETORNA ABREPARENTESES error FECHAPARENTESES'''
     print ("Erro na geração da regra retorna")
 
-def p_expressao(t):
+def p_expressao(p):
     ''' expressao : expressao_logica
     | atribuicao
     '''
     pai = criar_no('expressao')
-    t[0] = pai # expressao
-    t[1].parent = pai # expressao -> expressao_logica
-def p_expressao_erro(t):
+    p[0] = pai # expressao
+    p[1].parent = pai # expressao -> expressao_logica
+def p_expressao_erro(p):
     ''' expressao : error'''
     print ("Erro na geração da regra expressao")
 
-def p_expressao_logica(t):
+def p_expressao_logica(p):
     ''' expressao_logica : expressao_simples
     | expressao_logica operador_logico expressao_simples
     '''
     pai = criar_no('expressao_logica')
-    t[0] = pai
-    t[1].parent = pai # expressao_logica -> expressao_simples 
+    p[0] = pai
+    p[1].parent = pai # expressao_logica -> expressao_simples 
     # operador logico
-    if len(t) > 2:
-        t[2].parent = pai
-        t[3].parent = pai
-def p_expressao_logica_erro(t):
+    if len(p) > 2:
+        p[2].parent = pai
+        p[3].parent = pai
+def p_expressao_logica_erro(p):
     ''' expressao_logica : error operador_logico expressao_simples
     | expressao_logica error expressao_simples
     | expressao_logica operador_logico error
@@ -304,18 +304,18 @@ def p_expressao_logica_erro(t):
     '''
     print ("Erro na geração da regra expressao_logica")
 
-def p_expressao_simples(t):
+def p_expressao_simples(p):
     ''' expressao_simples : expressao_aditiva
     | expressao_logica operador_relacional expressao_simples
     '''
     pai = criar_no('expressao_simples')
-    t[0] = pai # expressao_simples
-    t[1].parent = pai # expressao_aditiva 
+    p[0] = pai # expressao_simples
+    p[1].parent = pai # expressao_aditiva 
     # operador relacional
-    if len(t) > 2:
-        t[2].parent = pai
-        t[3].parent = pai
-def p_expressao_simples_erro(t):
+    if len(p) > 2:
+        p[2].parent = pai
+        p[3].parent = pai
+def p_expressao_simples_erro(p):
     ''' expressao_simples : error
     | error operador_relacional expressao_simples
     | expressao_logica error expressao_simples
@@ -323,17 +323,17 @@ def p_expressao_simples_erro(t):
     '''
     print ("Erro na geração da regra expressao_simples")
 
-def p_expressao_aditiva(t):
+def p_expressao_aditiva(p):
     ''' expressao_aditiva : expressao_multiplicativa
     | expressao_aditiva operador_soma expressao_multiplicativa
     '''
     pai = criar_no('expressao_aditiva')
-    t[0] = pai # expressao aditiva
-    t[1].parent = pai # expressao multiplicativa 
-    if len(t) > 2:
-        t[2].parent = pai
-        t[3].parent = pai
-def p_expressao_aditiva_erro(t):
+    p[0] = pai # expressao aditiva
+    p[1].parent = pai # expressao multiplicativa 
+    if len(p) > 2:
+        p[2].parent = pai
+        p[3].parent = pai
+def p_expressao_aditiva_erro(p):
     ''' expressao_aditiva : error
     | error operador_soma expressao_multiplicativa
     | expressao_aditiva error expressao_multiplicativa
@@ -341,19 +341,19 @@ def p_expressao_aditiva_erro(t):
     '''
     print ("Erro na geração da regra expressao_aditiva")
 
-def p_expressao_multiplicativa(t):
+def p_expressao_multiplicativa(p):
     ''' expressao_multiplicativa : expressao_unaria
     | expressao_multiplicativa operador_multiplicacao expressao_unaria
     ''' 
     pai = criar_no('expressao_multiplicativa')
-    t[0] = pai  # expressao multiplicativa
-    t[1].parent = pai # expressao unaria 
+    p[0] = pai  # expressao multiplicativa
+    p[1].parent = pai # expressao unaria 
     # expressao multiplicativa
-    if len(t) > 2:
-        t[2].parent = pai
-        t[3].parent = pai 
+    if len(p) > 2:
+        p[2].parent = pai
+        p[3].parent = pai 
         
-def p_expressao_multiplicativa_erro(t):
+def p_expressao_multiplicativa_erro(p):
     ''' expressao_multiplicativa : error
     | error operador_multiplicacao expressao_unaria
     | expressao_multiplicativa error expressao_unaria
@@ -361,23 +361,23 @@ def p_expressao_multiplicativa_erro(t):
     '''
     print ("Erro na geração da regra expressao_multiplicativa")
 
-def p_expressao_unaria(t):
+def p_expressao_unaria(p):
     ''' expressao_unaria : fator
     | operador_soma fator
     | NAO fator
     '''
     pai = criar_no('expressao_unaria')
-    t[0] = pai # expressao unaria 
+    p[0] = pai # expressao unaria 
     # se for a negacao
-    if t[1] == '!':
-        t[1] = criar_no('NAO', pai) 
+    if p[1] == '!':
+        p[1] = criar_no('NAO', pai) 
     # senao     
     else:
-        t[1].parent = pai # fator 
+        p[1].parent = pai # fator 
     # operador soma    
-    if len(t) > 2:
-        t[2].parent = pai
-def p_expressao_unaria_erro(t):
+    if len(p) > 2:
+        p[2].parent = pai
+def p_expressao_unaria_erro(p):
     ''' expressao_unaria : error
     | error fator
     | operador_soma error
@@ -385,62 +385,62 @@ def p_expressao_unaria_erro(t):
     '''
     print ("Erro na geração da regra expressao_aditiva")
 
-def p_operador_multiplicacao_divisao(t):
+def p_operador_multiplicacao_divisao(p):
     ''' operador_multiplicacao : MULTIPLICACAO
     | DIVISAO
     '''
     pai = criar_no('operador_multiplicacao')
-    t[0] = pai # operador 
+    p[0] = pai # operador 
     # se for multiplicacao
-    if t[1] == '*':
-        t[1] = criar_no('MULTIPLICACAO', pai) 
+    if p[1] == '*':
+        p[1] = criar_no('MULTIPLICACAO', pai) 
     # se for divisao    
     else:
-        t[1] = criar_no('DIVISAO', pai)
+        p[1] = criar_no('DIVISAO', pai)
 
-def p_fator(t):
+def p_fator(p):
     ''' fator : ABREPARENTESES expressao FECHAPARENTESES
     | var
     | chamada_funcao
     | numero
     '''
     pai = criar_no('fator')
-    t[0] = pai # fator
-    if len(t) > 2:
-        t[1] = criar_no('ABREPARENTESES', pai)
-        t[2].parent = pai # expressao
-        t[3] = criar_no('FECHAPARENTESES', pai)
+    p[0] = pai # fator
+    if len(p) > 2:
+        p[1] = criar_no('ABREPARENTESES', pai)
+        p[2].parent = pai # expressao
+        p[3] = criar_no('FECHAPARENTESES', pai)
     else:
-        t[1].parent = pai # chamada de funcao ou var ou numero
+        p[1].parent = pai # chamada de funcao ou var ou numero
 
-def p_fator_erro(t):
+def p_fator_erro(p):
     ''' fator : ABREPARENTESES error FECHAPARENTESES
     | error
     '''
     print("Erro na geração da regra fator")
 
-def p_numero(t):
+def p_numero(p):
     ''' numero : NUMERO_INTEIRO
     | NUMERO_PONTO_FLUTUANTE
     '''
     pai = criar_no('numero')
-    t[0] = pai # NUMERO 
+    p[0] = pai # NUMERO 
     # se não tiver a parte decimal então é inteiro
-    if t[1].find('.') == -1:
-        t[1] = criar_no('NUMERO_INTEIRO-' + t[1], pai)
+    if p[1].find('.'): 
+        p[1] = criar_no('NUMERO_PONTO_FLUTUANTE-' + p[1], pai) 
     else: 
     # se tiver decimais é flutuante        
-        t[1] = criar_no('NUMERO_PONTO_FLUTUANTE-' + t[1], pai)
+        p[1] = criar_no('NUMERO_INTEIRO-' + p[1], pai)
 
-def p_chamada_funcao(t):
+def p_chamada_funcao(p):
     ''' chamada_funcao : ID ABREPARENTESES lista_argumentos FECHAPARENTESES
     '''
     pai = criar_no('chamada_funcao')
-    t[0] = pai # chamada de funcao
-    t[1] = criar_no('ID-' + t[1], pai, line=t.lineno(1)) # ID
-    t[2] = criar_no('ABREPARENTESES', pai)
-    t[3].parent = pai # lsta de argumentos
-    t[4] = criar_no('FECHAPARENTESES', pai)
+    p[0] = pai # chamada de funcao
+    p[1] = criar_no('ID-' + p[1], pai, line=p.lineno(1)) # ID
+    p[2] = criar_no('ABREPARENTESES', pai)
+    p[3].parent = pai # lsta de argumentos
+    p[4] = criar_no('FECHAPARENTESES', pai)
 
 
 def p_chamada_funcao_erro(t):
@@ -448,19 +448,19 @@ def p_chamada_funcao_erro(t):
     print("Erro na geração da regra fator")
  
  
-def p_lista_argumentos(t):
+def p_lista_argumentos(p):
     ''' lista_argumentos : lista_argumentos VIRGULA expressao
     | expressao
     | vazio
     '''
     pai = criar_no('lista_argumentos')
-    t[0] = pai
-    t[1].parent = pai
-    if len(t) > 2:
-        t[2] = criar_no('VIRGULA', pai)
-        t[3].parent = pai
+    p[0] = pai
+    p[1].parent = pai
+    if len(p) > 2:
+        p[2] = criar_no('VIRGULA', pai)
+        p[3].parent = pai
 
-def p_lista_argumentos_erro(t):
+def p_lista_argumentos_erro(p):
     ''' lista_argumentos : error VIRGULA expressao
     | lista_argumentos VIRGULA error
     | error
@@ -468,7 +468,7 @@ def p_lista_argumentos_erro(t):
     print("Erro na geração da regra fator") 
    
 # relacao entre numeros   
-def p_operador_relacional(t):
+def p_operador_relacional(p):
     ''' operador_relacional : MENOR
     | MAIOR
     | IGUALDADE
@@ -477,67 +477,67 @@ def p_operador_relacional(t):
     | MAIORIGUAL
     '''
     pai = criar_no('operador_relacional')
-    t[0] = pai # t[0] -> op relacional
-    if t[1] == '<':
-        t[1] = criar_no('MENOR', pai) # op relacional -> menor
-    elif t[1] == '<>':
-        t[1] = criar_no('DIFERENTE', pai) # op relacional -> diferente
-    elif t[1] == '>=':
-        t[1] = criar_no('MAIOR_GUAL', pai) # op relacional -> maior igual 
-    elif t[1] == '>':
-        t[1] = criar_no('MAIOR', pai) # op relacional -> maior
-    elif t[1] == '=':
-        t[1] = criar_no('IGUALDADE', pai) # op relacional -> igual    
+    p[0] = pai # t[0] -> op relacional
+    if p[1] == '<':
+        p[1] = criar_no('MENOR', pai) # op relacional -> menor
+    elif p[1] == '<>':
+        p[1] = criar_no('DIFERENTE', pai) # op relacional -> diferente
+    elif p[1] == '>=':
+        p[1] = criar_no('MAIOR_GUAL', pai) # op relacional -> maior igual 
+    elif p[1] == '>':
+        p[1] = criar_no('MAIOR', pai) # op relacional -> maior
+    elif p[1] == '=':
+        p[1] = criar_no('IGUALDADE', pai) # op relacional -> igual    
     else:
-        t[1] = criar_no('MENORIGUAL', pai) # # op relacional -> menor igual
+        p[1] = criar_no('MENORIGUAL', pai) # # op relacional -> menor igual
 # operador aritmetico
-def p_operador_soma(t):
+def p_operador_soma(p):
     ''' operador_soma : SOMA
     | SUBTRACAO
     '''
     pai = criar_no('operador_aritmetico')
-    t[0] = pai # raiz = op aritmetico
+    p[0] = pai # raiz = op aritmetico
     # se a segunda palavra é +
-    if t[1] == '+': 
-        t[1] = criar_no('SOMA', pai) # op aritmetico => soma
+    if p[1] == '+': 
+        p[1] = criar_no('SOMA', pai) # op aritmetico => soma
     else:
-        t[1] = criar_no('SUBTRACAO', pai) # op aritmetico => subtracao
+        p[1] = criar_no('SUBTRACAO', pai) # op aritmetico => subtracao
  
 # define operadores logicos e/ou 
-def p_operadores_logico(t):
+def p_operadores_logico(p):
     ''' operador_logico : E
     | OU
     '''
     pai = criar_no('operador_logico')
-    t[0] = pai # op log 
+    p[0] = pai # op log 
     # se a segunda palavra for e
-    if t[1] == '&&': 
+    if p[1] == '&&': 
         # op logico -> e    
-        t[1] = criar_no('E', pai)
+        p[1] = criar_no('E', pai)
     else: 
         # op logico -> ou    
-        t[1] = criar_no('OU', pai)
+        p[1] = criar_no('OU', pai)
  
 # negacao 
-def p_operador_not(t):
+def p_operador_not(p):
     ''' operador_negacao : NAO'''
     pai = criar_no('operador_negacao')
-    t[0] = pai # operador negacao
-    t[1] = criar_no('NAO', pai) # op -> nao
+    p[0] = pai # operador negacao
+    p[1] = criar_no('NAO', pai) # op -> nao
  
-def p_vazio(t):
+def p_vazio(p):
     ' vazio : '
     pai = criar_no('vazio') 
-    t[0] = pai # vazio  
+    p[0] = pai # vazio  
     pass     
 
 # funcao de erro
-def p_erro(t): 
+def p_erro(p): 
     # se for error de sintaxe    
-    if t: 
+    if p: 
         # mostra uma exeção indicando a linha e o token     
         # # print("Erro sintático na linha %d - Posição %d: '%s'" % (p.lineno, p.lexpos, p.value))     
-        raise Exception("Erro sintático na linha {} no token '{}'".format(t.lineno, t.value))
+        raise Exception("Erro sintático na linha {} no token '{}'".format(p.lineno, p.value))
     else: 
         # reinicia o parser    
         parser.restart()  
@@ -546,89 +546,89 @@ def p_erro(t):
         # gera uma  execao de erro
         raise Exception("Erro") 
 
-def p_func_declaracao(t):
+def p_func_declaracao(p):
     ''' declaracao_funcao : tipo cabecalho
     | cabecalho
     '''
     pai = criar_no('declaracao_funcao')
-    t[0] = pai # declaracao de funcao
-    t[1].parent = pai # tipo
-    if len(t) == 3:
-        t[2].parent = pai # cabecalho
-def p_func_declaracao_erro(t):
+    p[0] = pai # declaracao de funcao
+    p[1].parent = pai # tipo
+    if len(p) == 3:
+        p[2].parent = pai # cabecalho
+def p_func_declaracao_erro(p):
     ''' declaracao_funcao : error cabecalho
     | tipo error
     | error
     '''
     print ("Erro na geração da regra declaracao_funcao")
 
-def p_cabecalho_func(t):
+def p_cabecalho_func(p):
     ''' cabecalho : ID ABREPARENTESES lista_parametros FECHAPARENTESES corpo FIM'''
     global funcoes_id
-    funcoes_id.append(t[1]) # armeza o id da funcao 
+    funcoes_id.append(p[1]) # armeza o id da funcao 
     pai = criar_no('cabecalho')
-    t[0] = pai # cabecalho
-    t[1] = criar_no('ID-' + t[1], pai, t.lineno(1)) # id
-    t[2] = criar_no('ABREPARENTESES', pai) # (
-    t[3].parent = pai # lista de parametros
-    t[4] = criar_no('FECHAPARENTESES', pai) # )
-    t[5].parent = pai # corpo
-    t[6] = criar_no('FIM', pai) #fim
+    p[0] = pai # cabecalho
+    p[1] = criar_no('ID-' + p[1], pai, p.lineno(1)) # id
+    p[2] = criar_no('ABREPARENTESES', pai) # (
+    p[3].parent = pai # lista de parametros
+    p[4] = criar_no('FECHAPARENTESES', pai) # )
+    p[5].parent = pai # corpo
+    p[6] = criar_no('FIM', pai) #fim
 
-def p_cabecalho_func_erro(t):
+def p_cabecalho_func_erro(p):
     ''' cabecalho : ID ABREPARENTESES error FECHAPARENTESES corpo FIM
     | ID ABREPARENTESES lista_parametros FECHAPARENTESES error FIM
     '''
     print ("Erro na geração da regra declaracao_funcao")
 
-def p_lista_parametros(t):
+def p_lista_parametros(p):
     ''' lista_parametros : lista_parametros VIRGULA lista_parametros
     | parametro
     | vazio
     '''
     pai = criar_no('lista_parametros')
-    t[0] = pai # lista de parametros
-    t[1].parent = pai 
-    if len(t) > 2:
-        t[2] = criar_no('VIRUGLA', pai)
-        t[3].parent = pai # lista de parametros
-def p_lista_parametros_erro(t):
+    p[0] = pai # lista de parametros
+    p[1].parent = pai 
+    if len(p) > 2:
+        p[2] = criar_no('VIRUGLA', pai)
+        p[3].parent = pai # lista de parametros
+def p_lista_parametros_erro(p):
     ''' lista_parametros : error VIRGULA lista_parametros
     | lista_parametros VIRGULA error
     | error
     '''
     print ("Erro na geração da regra lista_parametros")
 
-def p_parametro(t):
+def p_parametro(p):
     ''' parametro : tipo DOISPONTOS ID
     | parametro ABRECOLCHETE FECHACOLCHETE
     '''
     pai = criar_no('parametro')
-    t[0] = pai # parametro
-    t[1].parent = pai # : parametro
-    if t[2] == ':':
-        t[2] = criar_no('DOISPONTOS', pai) # 1 opc
-        t[3] = criar_no('ID-' + t[3], pai, line=t.lineno(3))
+    p[0] = pai # parametro
+    p[1].parent = pai # : parametro
+    if p[2] == ':':
+        p[2] = criar_no('DOISPONTOS', pai) # 1 opc
+        p[3] = criar_no('ID-' + p[3], pai, line=p.lineno(3))
     else:
-        t[2] = criar_no('ABRECOLCHETE', pai) # 2 opc
-        t[3] = criar_no('FECHACOLCHETE', pai, line=t.lineno(3))
-def p_parametro_erro(t):
+        p[2] = criar_no('ABRECOLCHETE', pai) # 2 opc
+        p[3] = criar_no('FECHACOLCHETE', pai, line=p.lineno(3))
+def p_parametro_erro(p):
     ''' parametro : error DOISPONTOS ID
     | error ABRECOLCHETE FECHACOLCHETE
     '''
     print ("Erro na geração da regra parametro")
 
-def p_corpo(t):
+def p_corpo(p):
     ''' corpo : corpo acao
     | vazio
     | acao
     '''
     pai = criar_no('corpo')
-    t[0] = pai # corpo
-    t[1].parent = pai # corpo : corpo
-    if len(t) == 3:
-        t[2].parent = pai # acao
-def p_corpo_erro(t):
+    p[0] = pai # corpo
+    p[1].parent = pai # corpo : corpo
+    if len(p) == 3:
+        p[2].parent = pai # acao
+def p_corpo_erro(p):
     ''' corpo : error acao
     | corpo error
     | error
