@@ -583,11 +583,11 @@ def p_lista_parametros(p):
     | vazio
     '''
     pai = criar_no('lista_parametros')
-    p[0] = pai # lista de parametros
-    p[1].parent = pai 
-    if len(p) > 2:
+    p[0] = pai # lista de parametros :
+    p[1].parent = pai  #lista de parametros : lista_parametros || parametro || vazio
+    if len(p) == 3:
         p[2] = criar_no('VIRUGLA', pai)
-        p[3].parent = pai # lista de parametros
+        p[3].parent = pai # lista de parametros || parametro || vazio
 def p_lista_parametros_erro(p):
     ''' lista_parametros : error VIRGULA lista_parametros
     | lista_parametros VIRGULA error
