@@ -1,6 +1,5 @@
 # coding=utf-8  
 # dependencias utilizadas no python3
-#from ast import AST
 from ply import yacc
 from lexer import tokens
 from anytree import Node 
@@ -23,8 +22,8 @@ def criar_variavel(pai,line2,p):
     return var        
 
 # arvore sintática é implementada com nós 
-# um nó tem as seguintes informacoes: 
-# (número # nome_da_regra) 
+# um nó tem as seguintes informacoes:  
+# (nome, pai, numero)
 def criar_no(name, parent=None, line=None):
     # estrutura para mostrar o número e o tipo do nó
     if parent and line:
@@ -34,7 +33,8 @@ def criar_no(name, parent=None, line=None):
     else:
         return Node(name) 
  
-# primeiro nó raiz  
+# primeiro nó raiz   
+# pandoc py
 def p_programa(p):
     """ programa : lista_declaracoes """
     global raiz 
