@@ -1,6 +1,5 @@
 # coding=utf-8  
 # dependencias utilizadas no python3
-from ast import AST
 from ply import yacc
 from lexer import tokens
 from anytree import Node 
@@ -8,8 +7,9 @@ import sys
 from anytree.exporter import DotExporter   
 
 # variáveis auxiliares para criação da árvore
-raiz = None # raiz
-funcoes_id = [] 
+raiz = None # raiz 
+# lista dos id's de funcoes
+lista_funcoes_id = [] 
 contador = 0
 # p.lineno(num). Return the line number for symbol num
 # p.lexpos(num). Return the lexing position for symbol num 
@@ -121,8 +121,6 @@ def p_variavel(p):
     pai = criar_no('var')
     p[0] = pai 
     p[1] = Node(str(contador) + '#' + 'ID-' + p[1], parent=pai, line=p.lineno(1))
-    #p[1] = Node('ID-' + p[1], parent=pai, line=p.lineno(1))
-    #p[1] = criar_variavel(pai,p.lineno(1),p)  
     # se tiver indice
     if len(p) > 2:
         p[2].parent = pai
@@ -560,8 +558,8 @@ def p_func_declaracao_erro(p):
 
 def p_cabecalho_func(p):
     ''' cabecalho : ID ABREPARENTESES lista_parametros FECHAPARENTESES corpo FIM'''
-    global funcoes_id
-    funcoes_id.append(p[1]) # armeza o id da funcao 
+    global lista_funcoes_id
+    lista_funcoes_id.append(p[1]) # armeza o id da funcao 
     pai = criar_no('cabecalho')
     p[0] = pai # cabecalho
     p[1] = criar_no('ID-' + p[1], pai, p.lineno(1)) # id
