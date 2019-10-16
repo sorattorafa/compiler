@@ -1,5 +1,6 @@
 # coding=utf-8  
 # dependencias utilizadas no python3
+from ast import AST
 from ply import yacc
 from lexer import tokens
 from anytree import Node 
@@ -7,10 +8,9 @@ import sys
 from anytree.exporter import DotExporter   
 
 # variáveis auxiliares para criação da árvore
-contador = 0  # utilizado para indicar o número do nó criado
 raiz = None # raiz
 funcoes_id = [] 
-
+contador = 0
 # p.lineno(num). Return the line number for symbol num
 # p.lexpos(num). Return the lexing position for symbol num 
  
@@ -24,19 +24,20 @@ def criar_variavel(pai,line2,p):
 # arvore sintática é implementada com nós 
 # um nó tem as seguintes informacoes:  
 # (nome, pai, numero)
-def criar_no(name, parent=None, line=None):
-    # estrutura para mostrar o número e o tipo do nó
+def criar_no(name, parent=None, line=None):  
+    global contador 
+    contador += 1    
     if parent and line:
-        return Node(name, parent=parent, line=line) # ID
-    elif parent:
-        return Node(name, parent=parent)
+        return Node(str(contador) + '#' + name, parent=parent, line=line)
+    if parent:
+        return Node(str(contador) + '#' + name, parent=parent)
     else:
-        return Node(name) 
+        return Node(str(contador) + '#' + name)
  
-# primeiro nó raiz   
-# pandoc py
+# primeiro nó raiz  
 def p_programa(p):
-    """ programa : lista_declaracoes """
+    """ programa : lista_declaracoes  
+    """
     global raiz 
     raiz = criar_no('programa-raiz')  # cria um nó raiz
     p[0] = raiz # atribui ele pra raiz t[0]
@@ -115,13 +116,13 @@ def p_lista_variaveis_inicializacao_erro(t):
 def p_variavel(p):
     ''' var : ID
     | ID indice
-    '''
-    pai = criar_no('var')
-    p[0] = pai
+    ''' 
     global contador
-    contador+=1 
-    # t[1] = Node(str(contador) + '#' + 'ID-' + t[1], parent=pai, line=t.lineno(1))
-    p[1] = criar_variavel(pai,p.lineno(1),p)  
+    pai = criar_no('var')
+    p[0] = pai 
+    p[1] = Node(str(contador) + '#' + 'ID-' + p[1], parent=pai, line=p.lineno(1))
+    #p[1] = Node('ID-' + p[1], parent=pai, line=p.lineno(1))
+    #p[1] = criar_variavel(pai,p.lineno(1),p)  
     # se tiver indice
     if len(p) > 2:
         p[2].parent = pai
@@ -244,9 +245,8 @@ def p_se(p):
     # se tiver um senão
     if len(p) == 8:
         p[5] = criar_no('SENAO', pai)
-        p[6].parent = pai # corpo
+        p[6].parent = pai 
         p[7] = criar_no('FIM', pai) 
-    # fim sem o senão
     else:
         p[5] = criar_no('FIM', pai)
 def p_se_erro(p):
@@ -422,12 +422,11 @@ def p_numero(p):
     pai = criar_no('numero')
     p[0] = pai # NUMERO 
     # se não tiver a parte decimal então é inteiro
-    if p[1].find('.'): 
-        p[1] = criar_no('NUMERO_PONTO_FLUTUANTE-' + p[1], pai) 
-    else: 
+    if p[1].find('.') == -1: 
+        p[1] = criar_no('NUMERO_INTEIRO-' + p[1], pai) 
+    else:  
+        p[1] = criar_no('NUMERO_PONTO_FLUTUANTE-' + p[1], pai)         
     # se tiver decimais é flutuante        
-        p[1] = criar_no('NUMERO_INTEIRO-' + p[1], pai)
-
 def p_chamada_funcao(p):
     ''' chamada_funcao : ID ABREPARENTESES lista_argumentos FECHAPARENTESES
     '''
@@ -440,7 +439,8 @@ def p_chamada_funcao(p):
 
 
 def p_chamada_funcao_erro(t):
-    ''' chamada_funcao : ID ABREPARENTESES error FECHAPARENTESES'''
+    ''' chamada_funcao : ID ABREPARENTESES error FECHAPARENTESES 
+    '''
     print("Erro na geração da regra fator")
  
  
@@ -583,11 +583,11 @@ def p_lista_parametros(p):
     | vazio
     '''
     pai = criar_no('lista_parametros')
-    p[0] = pai # lista de parametros :
-    p[1].parent = pai  #lista de parametros : lista_parametros || parametro || vazio
-    if len(p) == 3:
+    p[0] = pai # lista de parametros
+    p[1].parent = pai 
+    if len(p) > 2:
         p[2] = criar_no('VIRUGLA', pai)
-        p[3].parent = pai # lista de parametros || parametro || vazio
+        p[3].parent = pai # lista de parametros
 def p_lista_parametros_erro(p):
     ''' lista_parametros : error VIRGULA lista_parametros
     | lista_parametros VIRGULA error
