@@ -652,7 +652,9 @@ def gera_raiz():
         if (raiz):   
                 print("Gerando imagem da árvore...") 
                 DotExporter(raiz).to_picture("arvore-sintatica1.png") 
-                variaveis = tabela_simbolos(raiz)  
+                # garante que o programa possui uma funcao principal 
+                verifica_main(raiz) 
+                variaveis = tabela_variaveis(raiz)  
                 print(variaveis)
                 #trim_tree(raiz) 
                 #DotExporter(raiz).to_picture('arvore_cortada.png')

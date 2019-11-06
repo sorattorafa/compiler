@@ -18,9 +18,25 @@ def trim_tree(root_param):
                     node_iter.parent.children = tuple(list_children)
                     trim_tree(root_param)
                     break   
-
-# guarda as variáveis                
-def tabela_simbolos(root_param): 
+'''
+if not main return error
+''' 
+def verifica_main(root_param): 
+    boole = 0 
+    for node in PreOrderIter(root_param):
+        node_name = get_name(node) 
+        if node_name == 'cabecalho': 
+            aux = node.children[0].name 
+            aux = aux[5:] 
+            if( aux == 'principal' or aux == '-principal'): 
+                boole = 1 
+    if(boole == 0): 
+        print("Função principal não declarada")              
+                
+'''
+store vars
+'''             
+def tabela_variaveis(root_param): 
     numero = 0 
     variaveis = []
     for node in PreOrderIter(root_param):
@@ -36,11 +52,11 @@ def tabela_simbolos(root_param):
             # inteiro ou flutuante
             tipo = get_name(node.children[0].children[0])               
             token =  get_name(node.children[2].children[0].children[0]) 
-            nome =  node.children[2].children[0].children[0].name 
-            nome = nome[5:]
+            nome =  get_last_value_name(node.children[2].children[0].children[0]) 
+            #nome = nome[5:]
             linha = node.children[2].children[0].children[0].line     
-            if (get_name(node.parent.parent.parent.parent) == 'programa' ): 
-                escopo = 'global' 
+            #escopo = get_last_value_name(node.parent.parent.parent.parent.children[0])  
+            #escopo = escopo[6:]
             ## else verifica se está dentro de uma função     
             variavel = {}  
             numero += 1 
@@ -49,10 +65,11 @@ def tabela_simbolos(root_param):
             variavel['token'] = token  
             variavel['nome'] = nome
             variavel['linha'] = linha 
-            variavel['escopo'] = escopo 
+            #variavel['escopo'] = escopo 
             variavel['dimensao'] = dimensao 
             variavel['estado'] = 'inicializada' 
-            variaveis.append(variavel)       
+            if(variavel['nome'] not in variaveis): 
+                variaveis.append(variavel)        
     return variaveis        
 
 # mostra o valor da variavel  
