@@ -652,10 +652,13 @@ def gera_raiz():
         if (raiz):   
                 print("Gerando imagem da árvore...") 
                 DotExporter(raiz).to_picture("arvore-sintatica1.png") 
-                # garante que o programa possui uma funcao principal 
-                verifica_main(raiz) 
-                variaveis = tabela_variaveis(raiz)  
-                print(variaveis)
+                #trim_tree(raiz)  
+                # lista as funcoes e variáveis do programa 
+                tableofsymbols = tabela_variaveis(raiz)
+                #print(tableofsymbols) 
+                # # garante que o programa possui uma funcao principal  
+                verifica_main(tableofsymbols) 
+                verify_functions(tableofsymbols,raiz)
                 #trim_tree(raiz) 
                 #DotExporter(raiz).to_picture('arvore_cortada.png')
                 # semantica       
