@@ -1,7 +1,8 @@
 from anytree import Node, LevelOrderIter, PreOrderIter  
 import re  
-
-
+ 
+# se a variável for declarada o estado é inicializada 
+# se ela é utilizada o estado é utilizada 
 # mostra o valor da variavel  
 def get_last_value_name(node_param):
     return re.search('-(.)*', node_param.name).group(0)[1:len(node_param.name) + 1] 
@@ -71,10 +72,22 @@ def tabela_variaveis(root_param):
             variavel['linha'] = linha 
             variavel['dimensao'] = dimensao 
             variavel['estado'] = 'inicializada' 
-            if(variavel['nome'] not in variaveis): 
+            if(get_name(node.parent) == 'declaracao'): 
+                variavel['escopo'] = 'global'
+            else: 
+                escopo = node 
+                while(get_name(escopo) != 'cabecalho'): 
+                    escopo = escopo.parent 
+                escopo = get_last_value_name(escopo.children[0])     
+                variavel['escopo'] = escopo 
+            existe = 0     
+            for v in variaveis: 
+                if(v['nome'] == variavel['nome']): 
+                    existe = 1 
+            if(existe == 0):          
                 variaveis.append(variavel) 
             else: 
-                print('Variável ja definida anteriormente') 
+                raise Exception("Variável {} ja definida anteriormente na linha {}".format(variavel['nome'], variavel['linha'])) 
         if (node_name == 'declaracao_funcao'): 
             funcao = {} 
             numero += 1 
@@ -83,53 +96,96 @@ def tabela_variaveis(root_param):
             funcao['token'] = 'func' 
             funcao['nome'] = get_last_value_name(node.children[1].children[0]) 
             funcao['linha'] = node.children[1].children[0].line 
+            retornobool = 0  
+            for node2 in PreOrderIter(node): 
+                if(get_name(node2) == 'retorna'):  
+                    for node3 in PreOrderIter(node2): 
+                        if(get_name(node3) == 'var'): 
+                            nomex = get_last_value_name(node3.children[0]) 
+                            funcao['retorno'] = nomex
+                        elif(get_name(node3) == 'numero'): 
+                            funcao['retorno'] = get_name(node3.children[0])
+
+            if(get_name(node.children[1].children[4].children[0]) == 'acao'): 
+                if(get_name(node.children[1].children[4].children[0].children[0]) != 'retorna'): 
+                    raise Exception("Função {} sem retorno".format(funcao['nome']))
             if(get_name(node.children[1].children[4].children[0]) == 'vazio'): 
                 funcao['retorno'] = 'vazio' 
-            if(get_name(node.children[1].children[4].children[0]) == 'corpo'): 
-                funcao['retorno'] = get_name(node.children[1].children[4].children[1].children[0].children[2].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0]) 
-            else:  
-                funcao['retorno'] = get_name(node.children[1].children[4].children[0].children[0].children[2].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0])            
+                raise Exception("Função {} sem retorno".format(funcao['nome'])) 
+            if(get_name(node.children[1].children[4].children[0].children[0]) != 'retorna' and get_name(node.children[1].children[4].children[1].children[0]) != 'retorna' ): 
+                raise Exception("Função {} sem retorno".format(funcao['nome']))             
             funcao['estado'] = 'inicializada'         
             if(get_name(node.children[1].children[2].children[0]) == 'vazio'): 
                 funcao['parametros-formais'] = 0  
             elif(get_name(node.children[1].children[2].children[0]) == 'parametro'): 
+                funcao['lista-parametros'] =  get_last_value_name(node.children[1].children[2].children[0].children[2])
                 funcao['parametros-formais'] = 1 
             else: 
                 cont = 1 
                 aux = node.children[1].children[2] 
+                funcao['lista-parametros'] = [] 
+                funcao['lista-parametros'] += get_last_value_name(aux.children[0].children[0].children[2]) 
                 while(len(aux.children) != 1): 
                     aux = aux.children[2] 
+                    if(len(aux.children) == 1): 
+                        funcao['lista-parametros'] += get_last_value_name(aux.children[0].children[2]) 
+                    else: 
+                        funcao['lista-parametros'] += get_last_value_name(aux.children[0].children[0].children[2])
                     cont += 1 
-                funcao['parametros-formais'] = cont               
-            variaveis.append(funcao)  
+                funcao['parametros-formais'] = cont 
+            funcaodeclarada = 0 
+            for variavel in variaveis: 
+                if(variavel['token'] == 'func' and variavel['nome'] == funcao['nome']): 
+                    funcaodeclarada = 1 
+            if(funcaodeclarada == 1): 
+                raise Exception("Função '{}' já foi declarada anteriormente".format(funcao['nome'])) 
+            else: 
+                variaveis.append(funcao)  
     return variaveis        
  
 '''
 if not main : error 
 if main return not int : error
 ''' 
-def verifica_main(tableofsymbols): 
+def verify_main(tableofsymbols): 
     boole = 0 
     for symbol in tableofsymbols:  
         if(symbol['nome'] == 'principal'): 
             boole = 1 
     if(boole == 0): 
-        raise Exception("Não existe uma função principal")          
-    for symbol in tableofsymbols: 
+        raise Exception("Não existe uma função principal")       
+
+    #for symbol in tableofsymbols: 
         #print('Symbol!',symbol) 
-        if(symbol['nome'] == 'principal' and symbol['token'] == 'func' and symbol['retorno']!= 'NUMERO_INTEIRO'): 
-            raise Exception("A função principal da linha'{}' deveria retornar um inteiro. ".format(symbol['linha']))    
+    #    if(symbol['nome'] == 'principal' and symbol['token'] == 'func' and symbol['retorno']!= 'NUMERO_INTEIRO' and symbol['retorno'] != 'ID'): 
+    #        raise Exception("A função principal da linha'{}' deveria retornar um inteiro. ".format(symbol['linha']))    
     #for symbol in tableofsymbols: 
     #    if(symbol['token'] == 'func' and symbol[''])                           
 '''
 verify return of all functions
 '''  
-def verify_functions(tableofsymbols,raiz): 
+def verify_functions(tableofsymbols,raiz):  
+    for symbol in tableofsymbols:  
+        if(symbol['token'] == 'func'):    
+            for node in LevelOrderIter(raiz): 
+                if(get_name(node) == 'declaracao_funcao'): 
+                    if(get_last_value_name(node.children[1].children[0]) == symbol['nome']): 
+                        for node2 in LevelOrderIter(node): 
+                            if(get_name(node2) == 'parametro'): 
+                                if(get_last_value_name(node2.children[2]) == symbol['retorno']): 
+                                    symbol['retorno'] = get_name(node2.children[0].children[0]) 
+        
     for symbol in tableofsymbols: 
-        if(symbol['tipo'] == 'inteiro' and symbol['token'] == 'func' and symbol['retorno'] != 'NUMERO_INTEIRO'): 
-            raise Exception("Erro semântico na linha {} na função '{}'. A função inteiro não retorna um valor inteiro.".format(symbol['linha'], symbol['nome']))
-        if(symbol['tipo'] == 'flutuante' and symbol['token'] == 'func' and symbol['retorno'] != 'NUMERO_PONTO_FLUTUANTE'): 
-            raise Exception("Erro semântico na linha {} na função '{}'. A função flutuante não retorna um valor flutuante. ".format(symbol['linha'], symbol['nome'])) 
+        if(symbol['tipo'] == 'inteiro' and symbol['token'] == 'func'): 
+            for s in tableofsymbols: 
+                if(s['nome'] == symbol['retorno']): 
+                    symbol['retorno'] = s['tipo'] 
+        if(symbol['token'] == 'func' and symbol['tipo'] == 'inteiro'): 
+            if(symbol['retorno'] != 'inteiro' and symbol['retorno'] != 'NUMERO_INTEIRO'): 
+                raise Exception("Erro na função {} do tipo {} retorna um {}".format(symbol['nome'], symbol['tipo'], symbol['retorno'])) 
+        if(symbol['token'] == 'func' and symbol['tipo'] == 'flutuante'):     
+            if(symbol['retorno'] != 'flutuante' and symbol['retorno'] != 'NUMERO_PONTO_FLUTUANTE'): 
+                raise Exception("Erro na função {} do tipo {} retorna um {}".format(symbol['nome'], symbol['tipo'], symbol['retorno']))              
     for node in LevelOrderIter(raiz):
         if(get_name(node) == 'chamada_funcao'): 
             nomefuncao = get_last_value_name(node.children[0]) 
@@ -163,8 +219,82 @@ def verify_functions(tableofsymbols,raiz):
                         symbol['parametros-reais'] = aux2      
             #parametrosreais  
     for symbol in tableofsymbols: 
-        if(symbol['token'] == 'func' and symbol['parametros-formais'] != 0): 
+        if(symbol['token'] == 'func' and symbol['nome'] != 'principal' and symbol['parametros-formais'] != 0): 
             if(symbol['parametros-formais'] != symbol['parametros-reais']): 
                 raise Exception("A função'{}' na linha {} é definida com {} parametros formais e chamada com {} ".format(symbol['nome'],symbol['linha'],symbol['parametros-formais'],symbol['parametros-reais'])) 
         if(symbol['token'] == 'func' and symbol['nome'] != 'principal' and symbol['estado'] != 'utilizada'): 
-            raise Exception("Função {} na linha {} foi declarada e não utilizada".format(symbol['nome'], symbol['linha']))        
+            raise Exception("Função {} na linha {} foi declarada e não utilizada".format(symbol['nome'], symbol['linha'])) 
+def verify_variables(tableofsymbols,raiz): 
+    for symbol in tableofsymbols: 
+        if(symbol['token'] == 'ID'): 
+            for node in LevelOrderIter(raiz): 
+                if(get_name(node) == 'cabecalho'): 
+                    if(get_last_value_name(node.children[0]) == symbol['escopo'] or symbol['escopo'] == 'global'): 
+                        if(get_name(node.children[4].children[0]) != 'acao'): 
+                            aux = node.children[4].children[0] 
+                            for node2 in LevelOrderIter(aux): 
+                                if(get_name(node2) == 'atribuicao'): 
+                                    if(get_last_value_name(node2.children[0].children[0]) == symbol['nome']): 
+                                        symbol['estado'] = 'utilizada'  
+                                    for node3 in LevelOrderIter(node2):       
+                                        if(get_name(node3) == 'var'): 
+                                            booleano = 0  
+                                            for s in tableofsymbols: 
+                                                if(s['nome'] == get_last_value_name(node3.children[0])): 
+                                                    booleano = 1 
+                                            if(booleano == 0): 
+                                                raise Exception("A variavel {} foi utilizada porém não foi definida formalmente".format(get_last_value_name(node3.children[0])))            
+    for symbol in tableofsymbols: 
+        if(symbol['token'] == 'ID'): 
+            for node in LevelOrderIter(raiz):  
+                if(get_name(node) == 'atribuicao'): 
+                    for node2 in LevelOrderIter(node): 
+                        if(get_name(node2) == 'var'): 
+                            if(symbol['nome'] == get_last_value_name(node2.children[0])): 
+                                symbol['estado'] = 'utilizada' 
+
+    for symbol in tableofsymbols: 
+        if(symbol['token'] == 'ID' and symbol['estado'] == 'inicializada'): 
+            raise Exception("Variavel '{}' da linha {} foi declarada porém não utilizada".format(symbol['nome'], symbol['linha']))  
+    for node in LevelOrderIter(raiz):  
+        if(get_name(node) == 'atribuicao'): 
+            declarada = 0  
+            for symbol in tableofsymbols: 
+                if(symbol['token'] == 'ID' and symbol['nome'] == get_last_value_name(node.children[0].children[0])): 
+                      declarada = 1 
+            if(declarada == 0): 
+                raise Exception("A variavel '{}' foi utilizada porém não foi definida formalmente.".format(get_last_value_name(node.children[0].children[0]))) 
+def verify_assignments(tableofsymbols,raiz):
+    for node in LevelOrderIter(raiz): 
+        if(get_name(node) == 'atribuicao'): 
+            var = get_last_value_name(node.children[0].children[0]) 
+           # print(var) 
+            for symbol in tableofsymbols: 
+                if(symbol['nome'] == var and symbol['escopo']): 
+                    tipoatribuicao = symbol['tipo'] 
+                    nome = var 
+            for node2 in LevelOrderIter(node.children[2]): 
+                if(get_name(node2) == 'chamada_funcao'): 
+                    nomefuncao = get_last_value_name(node2.children[0]) 
+                    for s in tableofsymbols: 
+                        if(s['nome'] == nomefuncao): 
+                            tipoutilizado = s['tipo'] 
+                            nome2 = nomefuncao 
+                if(get_name(node2) == 'numero'): 
+                    tipoutilizado = get_name(node2.children[0])              
+                if(get_name(node2) == 'var'): 
+                    nomevar = get_last_value_name(node2.children[0]) 
+                    for s in tableofsymbols: 
+                        if(s['token'] == 'ID' and s['nome'] == nomevar): 
+                            tipoutilizado = s['tipo'] 
+                            nome2 = nomevar  
+            if(tipoutilizado == 'NUMERO_INTEIRO' or tipoutilizado == 'inteiro'): 
+                if(tipoatribuicao == 'flutuante' or tipoatribuicao == 'NUMERO_PONTO_FLUTUANTE'): 
+                   raise Exception("A Variável {} é '{}' e recebe {} ".format(nome,tipoatribuicao, tipoutilizado))  
+            if(tipoutilizado == 'NUMERO_PONTO_FLUTUANTE' or tipoutilizado == 'flutuante'): 
+                if(tipoatribuicao == 'inteiro' or tipoatribuicao == 'NUMERO_INTEIRO'): 
+                   raise Exception("A Variável {} é '{}' e recebe {} ".format(nome,tipoatribuicao, tipoutilizado))                        
+            #print(nome, tipoatribuicao, tipoutilizado)                   
+            #if(tipoatribuicao != tipoutilizado): 
+            #    print("Atribuição de {} '{}' para um {} ".format(tipoatribuicao, nome, tipoutilizado))                               
+    print(tableofsymbols)                 

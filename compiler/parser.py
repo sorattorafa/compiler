@@ -657,8 +657,10 @@ def gera_raiz():
                 tableofsymbols = tabela_variaveis(raiz)
                 #print(tableofsymbols) 
                 # # garante que o programa possui uma funcao principal  
-                verifica_main(tableofsymbols) 
-                verify_functions(tableofsymbols,raiz)
+                verify_main(tableofsymbols) 
+                verify_functions(tableofsymbols,raiz) 
+                verify_variables(tableofsymbols,raiz) 
+                verify_assignments(tableofsymbols,raiz)
                 #trim_tree(raiz) 
                 #DotExporter(raiz).to_picture('arvore_cortada.png')
                 # semantica       
