@@ -649,10 +649,10 @@ def gera_raiz():
         code.close()
         # se houver uma raiz então pode-se mostrar a ávore sintática dessa raiz 
         # se não houver uma raíz possui erro de construção sintática  
-        if (raiz):   
+        if (raiz):    
+
                 print("Gerando imagem da árvore...") 
-                DotExporter(raiz).to_picture("arvore-sintatica1.png") 
-                #trim_tree(raiz)  
+                DotExporter(raiz).to_picture("arvore-sintatica1.png")   
                 # lista as funcoes e variáveis do programa 
                 tableofsymbols = tabela_variaveis(raiz)
                 #print(tableofsymbols) 
@@ -660,7 +660,10 @@ def gera_raiz():
                 verify_main(tableofsymbols) 
                 verify_functions(tableofsymbols,raiz) 
                 verify_variables(tableofsymbols,raiz) 
-                verify_assignments(tableofsymbols,raiz)
+                verify_assignments(tableofsymbols,raiz) 
+                trim_tree(raiz) 
+                print("Gerando imagem da árvore...") 
+                DotExporter(raiz).to_picture("arvore-sintatica2.png") 
                 #trim_tree(raiz) 
                 #DotExporter(raiz).to_picture('arvore_cortada.png')
                 # semantica       

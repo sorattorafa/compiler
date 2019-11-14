@@ -9,11 +9,11 @@ fim
 
 inteiro principal()
 	inteiro: a
-
+	inteiro: c
 	inteiro: b
 
-	b := 2
+	b := c
 
 	a := func(10,5) 
-	retorna(a)
+	retorna(b)
 fim

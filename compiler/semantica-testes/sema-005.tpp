@@ -7,6 +7,6 @@ fim
 
 inteiro principal()
 	inteiro: a
-	a := func(10,20) 
+	a := func(10,23) 
 	retorna(a)
 fim

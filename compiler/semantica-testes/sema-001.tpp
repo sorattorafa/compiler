@@ -1,10 +1,12 @@
 {Erro: Função principal não declarada}
 {Aviso: Variável 'a' declarada e não utilizada}
 {Aviso: Variável 'b' declarada e não utilizada}
-inteiro principal()
-inteiro: a 
-a:=2
-flutuante: b  
-b :=2
-retorna(a)
+
+inteiro: a
+flutuante: b
+ 
+inteiro principal()  
+    a:=2 
+    b := 2.0
+    retorna(a)
 fim

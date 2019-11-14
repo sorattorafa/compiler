@@ -5,11 +5,12 @@ flutuante: a
 inteiro: b
 
 func()
-  a := 10.2
-  retorna(a)
+  a := 10.2 
+
 fim
 
 inteiro principal()
 	b := 5
-	func()
+	func() 
+  retorna(1)
 fim

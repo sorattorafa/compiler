@@ -4,7 +4,7 @@
 {Erro: Função principal deveria retornar inteiro, mas retorna vazio}
 
 
-flutuante: a
+inteiro: a
 inteiro: b
 
 inteiro func()
@@ -13,6 +13,7 @@ inteiro func()
 fim
 
 inteiro principal()
-	b := 18
-	principal()
+	b := 18 
+  b := func()
+  retorna(1)
 fim

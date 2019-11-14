@@ -91,55 +91,73 @@ def tabela_variaveis(root_param):
         if (node_name == 'declaracao_funcao'): 
             funcao = {} 
             numero += 1 
-            funcao['numero'] = numero 
-            funcao['tipo'] = get_name(node.children[0].children[0])  
-            funcao['token'] = 'func' 
-            funcao['nome'] = get_last_value_name(node.children[1].children[0]) 
-            funcao['linha'] = node.children[1].children[0].line 
-            retornobool = 0  
-            for node2 in PreOrderIter(node): 
-                if(get_name(node2) == 'retorna'):  
-                    for node3 in PreOrderIter(node2): 
-                        if(get_name(node3) == 'var'): 
-                            nomex = get_last_value_name(node3.children[0]) 
-                            funcao['retorno'] = nomex
-                        elif(get_name(node3) == 'numero'): 
-                            funcao['retorno'] = get_name(node3.children[0])
+            funcao['numero'] = numero   
+            funcao['token'] = 'func'  
+            if(len(node.children) == 2): 
+                funcao['tipo'] = get_name(node.children[0].children[0])
+                funcao['nome'] = get_last_value_name(node.children[1].children[0]) 
+                funcao['linha'] = node.children[1].children[0].line 
+                retornobool = 0  
+                for node2 in PreOrderIter(node): 
+                    if(get_name(node2) == 'retorna'):  
+                        for node3 in PreOrderIter(node2): 
+                            if(get_name(node3) == 'var'): 
+                                nomex = get_last_value_name(node3.children[0]) 
+                                funcao['retorno'] = nomex
+                            elif(get_name(node3) == 'numero'): 
+                                funcao['retorno'] = get_name(node3.children[0])
 
-            if(get_name(node.children[1].children[4].children[0]) == 'acao'): 
-                if(get_name(node.children[1].children[4].children[0].children[0]) != 'retorna'): 
-                    raise Exception("Função {} sem retorno".format(funcao['nome']))
-            if(get_name(node.children[1].children[4].children[0]) == 'vazio'): 
-                funcao['retorno'] = 'vazio' 
-                raise Exception("Função {} sem retorno".format(funcao['nome'])) 
-            if(get_name(node.children[1].children[4].children[0].children[0]) != 'retorna' and get_name(node.children[1].children[4].children[1].children[0]) != 'retorna' ): 
-                raise Exception("Função {} sem retorno".format(funcao['nome']))             
-            funcao['estado'] = 'inicializada'         
-            if(get_name(node.children[1].children[2].children[0]) == 'vazio'): 
-                funcao['parametros-formais'] = 0  
-            elif(get_name(node.children[1].children[2].children[0]) == 'parametro'): 
-                funcao['lista-parametros'] =  get_last_value_name(node.children[1].children[2].children[0].children[2])
-                funcao['parametros-formais'] = 1 
+                if(get_name(node.children[1].children[4].children[0]) == 'acao'): 
+                    if(get_name(node.children[1].children[4].children[0].children[0]) != 'retorna'): 
+                        raise Exception("Função {} sem retorno".format(funcao['nome']))
+                if(get_name(node.children[1].children[4].children[0]) == 'vazio'): 
+                    funcao['retorno'] = 'vazio' 
+                    raise Exception("Função {} sem retorno".format(funcao['nome'])) 
+                if(get_name(node.children[1].children[4].children[0].children[0]) != 'retorna' and get_name(node.children[1].children[4].children[1].children[0]) != 'retorna' ): 
+                    raise Exception("Função {} sem retorno".format(funcao['nome']))              
+                funcao['estado'] = 'inicializada'         
+                if(get_name(node.children[1].children[2].children[0]) == 'vazio'): 
+                    funcao['parametros-formais'] = 0  
+                elif(get_name(node.children[1].children[2].children[0]) == 'parametro'): 
+                    funcao['lista-parametros'] =  get_last_value_name(node.children[1].children[2].children[0].children[2])
+                    funcao['parametros-formais'] = 1 
+                else: 
+                    cont = 1 
+                    aux = node.children[1].children[2] 
+                    funcao['lista-parametros'] = [] 
+                    funcao['lista-parametros'] += get_last_value_name(aux.children[0].children[0].children[2]) 
+                    while(len(aux.children) != 1): 
+                        aux = aux.children[2] 
+                        if(len(aux.children) == 1): 
+                            funcao['lista-parametros'] += get_last_value_name(aux.children[0].children[2]) 
+                        else: 
+                            funcao['lista-parametros'] += get_last_value_name(aux.children[0].children[0].children[2])
+                        cont += 1 
+                    funcao['parametros-formais'] = cont  
             else: 
-                cont = 1 
-                aux = node.children[1].children[2] 
-                funcao['lista-parametros'] = [] 
-                funcao['lista-parametros'] += get_last_value_name(aux.children[0].children[0].children[2]) 
-                while(len(aux.children) != 1): 
-                    aux = aux.children[2] 
-                    if(len(aux.children) == 1): 
-                        funcao['lista-parametros'] += get_last_value_name(aux.children[0].children[2]) 
-                    else: 
-                        funcao['lista-parametros'] += get_last_value_name(aux.children[0].children[0].children[2])
-                    cont += 1 
-                funcao['parametros-formais'] = cont 
+                funcao['tipo'] = 'vazio' 
+                funcao['nome'] = get_last_value_name(node.children[0].children[0]) 
+                funcao['linha'] = node.children[0].children[0].line  
+                existeretorno = 0
+                for node2 in PreOrderIter(node): 
+                    if(get_name(node2) == 'retorna'):  
+                        for node3 in PreOrderIter(node2): 
+                            if(get_name(node3) == 'var'): 
+                                nomex = get_last_value_name(node3.children[0]) 
+                                funcao['retorno'] = nomex 
+                                existeretorno = 1
+                            elif(get_name(node3) == 'numero'): 
+                                funcao['retorno'] = get_name(node3.children[0]) 
+                                existeretorno = 1 
+                if(existeretorno == 1): 
+                    raise Exception("A função {} é do tipo void e possui um valor de retorno = {}".format(funcao['nome'], funcao['retorno']))                         
             funcaodeclarada = 0 
             for variavel in variaveis: 
                 if(variavel['token'] == 'func' and variavel['nome'] == funcao['nome']): 
-                    funcaodeclarada = 1 
+                    funcaodeclarada = 1  
             if(funcaodeclarada == 1): 
                 raise Exception("Função '{}' já foi declarada anteriormente".format(funcao['nome'])) 
-            else: 
+            else:  
                 variaveis.append(funcao)  
     return variaveis        
  
@@ -147,20 +165,13 @@ def tabela_variaveis(root_param):
 if not main : error 
 if main return not int : error
 ''' 
-def verify_main(tableofsymbols): 
+def verify_main(tableofsymbols):  
     boole = 0 
     for symbol in tableofsymbols:  
         if(symbol['nome'] == 'principal'): 
             boole = 1 
     if(boole == 0): 
-        raise Exception("Não existe uma função principal")       
-
-    #for symbol in tableofsymbols: 
-        #print('Symbol!',symbol) 
-    #    if(symbol['nome'] == 'principal' and symbol['token'] == 'func' and symbol['retorno']!= 'NUMERO_INTEIRO' and symbol['retorno'] != 'ID'): 
-    #        raise Exception("A função principal da linha'{}' deveria retornar um inteiro. ".format(symbol['linha']))    
-    #for symbol in tableofsymbols: 
-    #    if(symbol['token'] == 'func' and symbol[''])                           
+        raise Exception("Não existe uma função principal")                              
 '''
 verify return of all functions
 '''  
@@ -169,12 +180,29 @@ def verify_functions(tableofsymbols,raiz):
         if(symbol['token'] == 'func'):    
             for node in LevelOrderIter(raiz): 
                 if(get_name(node) == 'declaracao_funcao'): 
-                    if(get_last_value_name(node.children[1].children[0]) == symbol['nome']): 
-                        for node2 in LevelOrderIter(node): 
-                            if(get_name(node2) == 'parametro'): 
-                                if(get_last_value_name(node2.children[2]) == symbol['retorno']): 
-                                    symbol['retorno'] = get_name(node2.children[0].children[0]) 
-        
+                    if(len(node.children) == 2): 
+                        if(get_last_value_name(node.children[1].children[0]) == symbol['nome']): 
+                            for node2 in LevelOrderIter(node): 
+                                if(get_name(node2) == 'parametro'): 
+                                    if(get_last_value_name(node2.children[2]) == symbol['retorno']): 
+                                        symbol['retorno'] = get_name(node2.children[0].children[0]) 
+                    else: 
+                        if(get_last_value_name(node.children[0].children[0]) == symbol['nome']): 
+                            for node2 in LevelOrderIter(node): 
+                                if(get_name(node2) == 'parametro'): 
+                                    if(get_last_value_name(node2.children[2]) == symbol['retorno']): 
+                                        symbol['retorno'] = get_name(node2.children[0].children[0])                     
+    for symbol in tableofsymbols: 
+        if(symbol['token'] == 'func' and symbol['tipo'] != 'vazio'): 
+            if(symbol['parametros-formais'] != 0): 
+                for l in symbol['lista-parametros']:  
+                    for node in LevelOrderIter(raiz): 
+                        if(get_name(node) == 'parametro'): 
+                            if(get_last_value_name(node.children[2]) == l): 
+                                if(symbol['tipo'] != get_name(node.children[0].children[0])):
+                                    raise Exception("Função {} do tipo {} recebe um {}".format(symbol['nome'], symbol['tipo'], get_name(node.children[0].children[0]) )) 
+                     
+
     for symbol in tableofsymbols: 
         if(symbol['tipo'] == 'inteiro' and symbol['token'] == 'func'): 
             for s in tableofsymbols: 
@@ -219,9 +247,10 @@ def verify_functions(tableofsymbols,raiz):
                         symbol['parametros-reais'] = aux2      
             #parametrosreais  
     for symbol in tableofsymbols: 
-        if(symbol['token'] == 'func' and symbol['nome'] != 'principal' and symbol['parametros-formais'] != 0): 
-            if(symbol['parametros-formais'] != symbol['parametros-reais']): 
-                raise Exception("A função'{}' na linha {} é definida com {} parametros formais e chamada com {} ".format(symbol['nome'],symbol['linha'],symbol['parametros-formais'],symbol['parametros-reais'])) 
+        if(symbol['token'] == 'func' and symbol['nome'] != 'principal' and symbol['tipo'] != 'vazio'): 
+            if(symbol['parametros-formais'] != 0):  
+                if(symbol['parametros-formais'] != symbol['parametros-reais']): 
+                    raise Exception("A função'{}' na linha {} é definida com {} parametros formais e chamada com {} ".format(symbol['nome'],symbol['linha'],symbol['parametros-formais'],symbol['parametros-reais'])) 
         if(symbol['token'] == 'func' and symbol['nome'] != 'principal' and symbol['estado'] != 'utilizada'): 
             raise Exception("Função {} na linha {} foi declarada e não utilizada".format(symbol['nome'], symbol['linha'])) 
 def verify_variables(tableofsymbols,raiz): 
@@ -293,8 +322,5 @@ def verify_assignments(tableofsymbols,raiz):
                    raise Exception("A Variável {} é '{}' e recebe {} ".format(nome,tipoatribuicao, tipoutilizado))  
             if(tipoutilizado == 'NUMERO_PONTO_FLUTUANTE' or tipoutilizado == 'flutuante'): 
                 if(tipoatribuicao == 'inteiro' or tipoatribuicao == 'NUMERO_INTEIRO'): 
-                   raise Exception("A Variável {} é '{}' e recebe {} ".format(nome,tipoatribuicao, tipoutilizado))                        
-            #print(nome, tipoatribuicao, tipoutilizado)                   
-            #if(tipoatribuicao != tipoutilizado): 
-            #    print("Atribuição de {} '{}' para um {} ".format(tipoatribuicao, nome, tipoutilizado))                               
+                   raise Exception("A Variável {} é '{}' e recebe {} ".format(nome,tipoatribuicao, tipoutilizado))                         
     print(tableofsymbols)                 

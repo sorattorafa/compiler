@@ -4,14 +4,17 @@
 {Aviso: Chamada recursiva para a função 'principal'}
 {Erro: Função 'principal' deveria retornar inteiro, mas retorna vazio}
 
-flutuante: a
+{flutuante: a}
 inteiro: b
 
 inteiro func()
-  a := 10
-  retorna(a)
+  b := 10
+  retorna(b)
 fim
 
 inteiro principal()
-	b := 18
+	b := 18 
+  {a:= 1}  
+  func()
+  retorna(b)
 fim
