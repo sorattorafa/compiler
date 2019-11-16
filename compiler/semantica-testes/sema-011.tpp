@@ -10,5 +10,6 @@ inteiro principal()
 	a := 1.0
 
 	a := b
-	b := a
+	b := a 
+	retorna(1)
 fim

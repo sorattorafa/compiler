@@ -6,10 +6,10 @@ inteiro: b
 
 func()
   a := 10.2
-  retorna(a)
 fim
 
 inteiro principal()
 	b := 5
-	func()
+	func() 
+  retorna(b)
 fim

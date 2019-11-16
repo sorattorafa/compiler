@@ -5,12 +5,9 @@
 
 inteiro: a
 flutuante: b
-inteiro: c[2]
+inteiro: c[1]
 
-inteiro principal() 
-  a := 2 
-  b := 2.2
-  c[1] := 10 
+inteiro principal()
+  c[1] := 10
   retorna(1)
-    
 fim
