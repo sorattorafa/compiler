@@ -2,11 +2,12 @@
 {Aviso: Variável 'a' declarada e não utilizada}
 {Aviso: Variável 'b' declarada e não utilizada}
 
-inteiro: a
-flutuante: b
- 
+flutuante fat()  
+x := 2 
+retorna(1.0)
+fim  
+
 inteiro principal()  
-    a:=2 
-    b := 2.0
-    retorna(a)
-fim
+fat()
+retorna(1) 
+fim 

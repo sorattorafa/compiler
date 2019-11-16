@@ -3,8 +3,6 @@
 
 flutuante: a
 
-inteiro principal() 
-	a := 2.0
-	escreva(a) 
-	retorna(1)
+inteiro principal()
+	escreva(a)
 fim

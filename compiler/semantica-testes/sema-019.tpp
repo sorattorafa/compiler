@@ -1,31 +1,31 @@
 {VERIFICAR AS DECLARAÇÕES DE VARIÁVEIS COM VÍRGULA}
 
-inteiro: n
-flutuante: x, y, z
-
-inteiro fatorial(inteiro: n, flutuante: m)
+flutuante: z
+flutuante fatorial(inteiro: n, flutuante: m)
 	{NOTAÇÃO CIENTÍFICA}
 	{WARNING: 'm' ESTÁ RECEBENDO VALORES DE TIPOS DIFERENTES}
-	m := 5
+	m := 5.2
 	
 	se n>0 então
 		retorna(n)
 	senão
 		repita 
-			flutuante: p
+			flutuante: p 
+			p := 1.2
 		até n = 0
 	fim
 	
 	z := 1.9 {SEM ERRO, FOI INICIALIZADO}
-	z := z+1 {ERRO, ID NAO FOI INICIALIZADO}
 
 	{WARNING DE RETORNO: PASSANDO TIPO DIFERENTE}
 	retorna(m)
 fim
 
 inteiro principal()
-	leia(n)
-	escreva(fatorial(1, 1.0)) {TIPOS DOS PARAMETROS DIFERENTES, TESTAR E VER SE ACUSA UM WARNING}
+	leia(n) 
+
+	escreva(fatorial(1, 1.0)) {TIPOS DOS PARAMETROS DIFERENTES, TESTAR E VER SE ACUSA UM WARNING} 
+ 	retorna(1)
 fim
 
 {VERIFICAR SE A VARIÁVEL 'a' ESTÁ NO ESCOPO 'global'}
@@ -48,10 +48,12 @@ inteiro fatorial2(inteiro: fat, flutuante: fat2, inteiro: fat3)
 	a := fatorial(1, 1.0)
 
 	{WARNING: VARIÁVEL 'b' é 'flutuante' E A FUNÇÃO È 'inteiro'}
-	b := fatorial(1, 1.0)
+	b := 2.2 
+	fatorial(1, 1.0)
 
 	{CHAMADA DE FUNÇÃO NORMAL}
-	fatorial(1, 1.0)
+	fatorial2(1, 1.0,1) 
+	retorna(1)
 fim
 
 {WARNING}

@@ -3,7 +3,7 @@
 
 inteiro principal()
 	flutuante: b
-	flutuante: a
+
 	b := a + 1.0
-	retorna(1)
+
 fim

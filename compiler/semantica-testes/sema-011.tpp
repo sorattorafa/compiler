@@ -8,5 +8,7 @@ inteiro: b
 inteiro principal()
 	b := 18
 	a := 1.0
-	retorna(1)
+
+	a := b
+	b := a
 fim

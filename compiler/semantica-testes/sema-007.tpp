@@ -2,9 +2,12 @@
 {Erro: Função principal deveria retornar inteiro, mas retorna vazio}
 
 inteiro: a
+flutuante: a
+
 inteiro principal()
+	flutuante: a
 	flutuante: b
-	a:= 2
-	b := 1.0
-	retorna(a)
+
+	b := a + 1.0
+
 fim

@@ -3,9 +3,14 @@
 {Aviso: Variável 'b' declarada e não utilizada}
 {Erro: Função principal deveria retornar inteiro, mas retorna vazio}
 
-inteiro: c[1.2]
+inteiro: a
+flutuante: b
+inteiro: c[2]
 
-inteiro principal()
-  c[5.8] := 10
-  retorna(c)
+inteiro principal() 
+  a := 2 
+  b := 2.2
+  c[1] := 10 
+  retorna(1)
+    
 fim

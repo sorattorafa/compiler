@@ -2,8 +2,8 @@
 {Erro: Função principal deveria retornar inteiro, mas retorna vazio}
 
 inteiro: a 
+inteiro: b
 
 inteiro principal()
-	a := 10 
-	retorna(a)
+	a := 10
 fim

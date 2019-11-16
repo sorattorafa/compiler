@@ -659,7 +659,8 @@ def gera_raiz():
                 # # garante que o programa possui uma funcao principal  
                 verify_main(tableofsymbols) 
                 verify_functions(tableofsymbols,raiz) 
-                verify_variables(tableofsymbols,raiz) 
+                verify_variables(tableofsymbols,raiz)   
+                verify_index_var(tableofsymbols,raiz)
                 verify_assignments(tableofsymbols,raiz) 
                 trim_tree(raiz) 
                 print("Gerando imagem da árvore...") 

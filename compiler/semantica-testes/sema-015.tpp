@@ -9,12 +9,11 @@ flutuante: a
 inteiro: b
 
 inteiro func()
-  a := 1.0
-  retorna(10)
+  a := 10
+  retorna(a)
 fim
 
 inteiro principal()
-	b := 18 
-  func()
-  retorna(b)
+	b := 18
+	principal()
 fim

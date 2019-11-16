@@ -3,16 +3,16 @@
 {Aviso: Coerção implícita do valor retornado por 'func'}
 {Erro: Função principal deveria retornar inteiro, mas retorna vazio}
 
-inteiro: a
+flutuante: a
 inteiro: b
 
 inteiro func()
-  b := 10
-  retorna(b)
+  a := 10
+  principal()
+  retorna(a)
 fim
 
 inteiro principal()
 	b := 18
-	a := func() 
-  retorna(1)
+	a := func()
 fim
