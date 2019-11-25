@@ -4,6 +4,7 @@
 
 inteiro: a
 flutuante: b
+
 inteiro principal() 
-retorna(1) 
+    retorna(1)
 fim

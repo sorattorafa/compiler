@@ -14,6 +14,5 @@ inteiro principal()
 
 	b := c
 
-	a := func(10,5) 
-	retorna(b)
+	a := func(10,5)
 fim

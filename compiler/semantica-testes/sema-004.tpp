@@ -5,6 +5,5 @@ inteiro: a
 inteiro: b
 
 inteiro principal()
-	a := 10 
-	retorna(1)
+	a := 10
 fim

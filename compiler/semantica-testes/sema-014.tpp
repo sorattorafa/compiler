@@ -9,11 +9,10 @@ inteiro: b
 
 inteiro func()
   a := 10
-  retorna(1)
+  retorna(a)
 fim
 
 inteiro principal()
-	b := 18 
-
-  retorna(1)
+	b := 18
+	principal()
 fim

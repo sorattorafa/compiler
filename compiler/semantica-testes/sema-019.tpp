@@ -1,7 +1,7 @@
 {VERIFICAR AS DECLARAÇÕES DE VARIÁVEIS COM VÍRGULA}
 
 inteiro: n
-flutuante: x, y, z,m
+flutuante: x, y, z, m
 
 flutuante fatorial(inteiro: n, flutuante: m)
 	{NOTAÇÃO CIENTÍFICA}
@@ -26,7 +26,7 @@ fim
 inteiro principal()
 	leia(n)
 	escreva(fatorial(1, 1.0)) {TIPOS DOS PARAMETROS DIFERENTES, TESTAR E VER SE ACUSA UM WARNING} 
-	retorna(1)
+    retorna(1)
 fim
 
 {VERIFICAR SE A VARIÁVEL 'a' ESTÁ NO ESCOPO 'global'}

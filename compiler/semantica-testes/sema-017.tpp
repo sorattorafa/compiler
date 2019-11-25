@@ -7,10 +7,9 @@ inteiro: b
 
 inteiro func()
   a := 10.2
-  retorna(1)
+  retorna(a)
 fim
 
 inteiro principal()
-	b := func()  
-  retorna(1)
+	b := func()
 fim

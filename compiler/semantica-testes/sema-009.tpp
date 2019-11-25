@@ -8,7 +8,5 @@ inteiro principal()
 	flutuante: b
 	inteiro: c
 
-	b := 1.0  
-
-	retorna(1)
+	b := 1.0
 fim

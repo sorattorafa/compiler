@@ -2,6 +2,5 @@
 {Erro: Função principal deveria retornar inteiro, mas retorna vazio}
 
 inteiro principal()
-   
-   retorna(1)
+   func()
 fim

@@ -6,8 +6,8 @@ from anytree import Node, LevelOrderIter, PreOrderIter
 import sys 
 from anytree.exporter import DotExporter     
 #import re   
-from semantic import * 
-
+from semantic import *  
+from codegen import * 
 # variáveis auxiliares para criação da árvore
 raiz = None # raiz 
 # lista dos id's de funcoes
@@ -15,7 +15,7 @@ lista_funcoes_id = []
 contador = 0
 # p.lineno(num). Return the line number for symbol num
 # p.lexpos(num). Return the lexing position for symbol num 
- 
+
 # declaracao de variaveis 
 def criar_variavel(pai,line2,p): 
     # var : contador - ID -  nome da variável
@@ -662,12 +662,11 @@ def gera_raiz():
                 verify_variables(tableofsymbols,raiz)   
                 verify_index_var(tableofsymbols,raiz)
                 verify_assignments(tableofsymbols,raiz) 
-                trim_tree(raiz) 
+                simplify_tree(raiz) 
                 print("Gerando imagem da árvore...") 
                 DotExporter(raiz).to_picture("arvore-sintatica2.png") 
-                #trim_tree(raiz) 
-                #DotExporter(raiz).to_picture('arvore_cortada.png')
-                # semantica       
+                code_gen(raiz,tableofsymbols)  
+                                        
         else:
                 raise Exception('Houve erro ao tentar gerar a árvore')
 if __name__ == '__main__': 

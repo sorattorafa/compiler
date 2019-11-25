@@ -14,5 +14,5 @@ fim
 inteiro principal()
 	b := 18
 	a := func() 
-  retorna(1)
+  retorna(0)
 fim

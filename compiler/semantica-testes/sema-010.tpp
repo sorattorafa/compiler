@@ -5,5 +5,5 @@ flutuante: a
 
 inteiro principal()
 	escreva(a) 
-	retorna(1)
+	retorna(0)
 fim
