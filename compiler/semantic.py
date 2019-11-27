@@ -381,7 +381,7 @@ def verify_functions(tableofsymbols,raiz):
                 if(symbol['nome'] == get_last_value_name(node.children[0]) and symbol['token'] == 'func'): 
                     symbol['parametros-reais'] = nparams 
             for symbol in tableofsymbols: 
-                print(symbol)  
+                #print(symbol)  
                 if(symbol['token'] == 'func' and symbol['parametros-formais'] != 0  and 'parametros-reais' in symbol and symbol['parametros-formais'] != symbol['parametros-reais']): 
                     raise Exception("Função {} é chamada com o número de parametros {} porém ela foi definida com {} parametros formais".format(symbol['nome'], symbol['parametros-reais'], symbol['parametros-formais']))        
             #parametrosreais  
@@ -499,8 +499,8 @@ def verify_assignments(tableofsymbols,raiz):
             if(tipoutilizado == 'NUMERO_PONTO_FLUTUANTE' or tipoutilizado == 'flutuante'): 
                 if(tipoatribuicao == 'inteiro' or tipoatribuicao == 'NUMERO_INTEIRO'): 
                    print("Aviso! A Variável {} é '{}' e recebe {} na linha {}".format(var,tipoatribuicao, tipoutilizado, linha))                         
-    for symbol in tableofsymbols: 
-        print(symbol['nome'], ':',symbol) 
+    #for symbol in tableofsymbols: 
+    #    print(symbol['nome'], ':',symbol) 
 
 # se a variável for declarada o estado é inicializada 
 # se ela é utilizada o estado é utilizada 

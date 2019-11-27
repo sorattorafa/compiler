@@ -1,69 +1,54 @@
 from llvmlite import ir 
 from parser import *
-def code_gen(raiz, tableofsymbols):
+def code_gen(raiz, tableofsymbols): 
         module = ir.Module('meu_modulo.bc') 
+        t_int = ir.IntType(32) 
+        t_func = ir.FunctionType(t_int, ()) 
         for symbol in tableofsymbols: 
                 if(symbol['token'] == 'ID'): 
-                        if(symbol['escopo'] == 'global'): 
+                        if(symbol['escopo'] == 'global' and symbol['tipo'] == 'inteiro'):  
                                 symbol['code'] = ir.GlobalVariable(module, ir.IntType(32),symbol['nome']) 
                                 symbol['code'].initializer = ir.Constant(ir.IntType(32), 0) 
                                 symbol['code'].linkage = "common"
                                             # Define o alinhamento em 4
-                                symbol['code'].align = 4
-                                            #print(symbol['nome']) 
-        for symbol in tableofsymbols: 
-                if(symbol['token'] == 'func' and symbol['nome'] == 'principal'): 
+                                symbol['code'].align = 4 
+                        if(symbol['escopo'] == 'global' and symbol['tipo'] == 'flutuante'):  
+                                symbol['code'] = ir.GlobalVariable(module, ir.FloatType(),symbol['nome']) 
+                                symbol['code'].initializer = ir.Constant(ir.FloatType(), 0) 
+                                symbol['code'].linkage = "common"
+                                            # Define o alinhamento em 4
+                                symbol['code'].align = 4        
+                                            #print(symbol['nome'])      
+        '''                            
+        ''' 
+        for symb in tableofsymbols: 
+                if(symb['token']== 'func'): 
+                        nomefuncao = symb['nome']   
+                        funcao = ir.Function(module, t_func, name=symb['nome']) 
+                        bb = funcao.append_basic_block('entry') 
+                        builder = ir.IRBuilder(bb) 
+                        for s in tableofsymbols: 
+                                if s['token'] == 'ID' and s['escopo'] == nomefuncao: 
+                                        if(s['tipo'] == 'inteiro'): 
+                                                s['code'] = builder.alloca(ir.IntType(32), name=s['nome'])
+                                                s['code'].align = 4
                         for node in LevelOrderIter(raiz): 
-                                name = get_name(node) 
-                                if(name == 'declaracao_funcao'): 
-                                        if(get_last_value_name(node.children[1].children[0]) == 'principal'):
-                                                for node2 in LevelOrderIter(node):                                                          
-                                                        if(get_name(node2) == 'retorna'): 
-                                                                            #print(get_last_value_name(node2.children[2].children[0])) 
-                                                                retornoprincipal = get_last_value_name(node2.children[2].children[0]) 
-                                                                            ## define o retorno da funcao main
-                                                                Zero32 = ir.Constant(ir.IntType(32), retornoprincipal) 
-                                                                            # Cria função main
-                                                                t_func_main = ir.FunctionType(ir.IntType(32), ()) 
-                                                                            # Declara função main
-                                                                main = ir.Function(module, t_func_main, name='main') 
-                                                                            # Declara o bloco de entrada
-                                                                entryBlock = main.append_basic_block('entry')
-                                                                endBasicBlock = main.append_basic_block('exit')
+                                if(get_name(node) == 'cabecalho'):  
+                                        # se eu achar o nome da funcao que eu quero
+                                        if(get_last_value_name(node.children[0]) == symb['nome']):
+                                                for retorno in LevelOrderIter(node): 
+                                                        if(get_name(retorno) == 'retorna'): 
+                                                                retornofuncao = get_last_value_name(retorno.children[2].children[0]) 
+                                                corpo = node.children[4] 
+                                                for n in LevelOrderIter(corpo): 
+                                                        if(get_name(n) == 'atribuicao'): 
+                                                                nomevar = get_last_value_name(n.children[0].children[0]) 
+                                                                for t in tableofsymbols: 
+                                                                        if t['nome'] == nomevar: 
+                                                                                codename = t['code'] 
+                                                                builder.store(ir.Constant(ir.IntType(32), get_last_value_name(n.children[2].children[0])), codename)
 
-                                                                            # Adiciona o bloco de entrada
-                                                                builder = ir.IRBuilder(entryBlock)
-
-                                                                            # Cria o valor de retorno e inicializa com zero
-                                                                returnVal = builder.alloca(ir.IntType(32), name='retorno')
-                                                                builder.store(Zero32, returnVal) 
-                                                                for s in tableofsymbols: 
-                                                                        if(s['token'] == 'ID'): 
-                                                                                s['code'] = builder.alloca(ir.IntType(32), name=s['nome'])
-                                                                                            # Define o alinhamento
-                                                                                s['code'].align = 4  
-                                                                                            # gerar atribuicao 
-                                                                                for no in LevelOrderIter(node): 
-                                                                                        if(get_name(no) == 'atribuicao'):  
-                                                                                                            #print('atribuicao', get_last_value_name(no.children[0].children[0]))
-                                                                                                            # Cria uma constante pra armazenar o numero 1 
-                                                                                                if(s['nome'] == get_last_value_name(no.children[0].children[0])): 
-                                                                                                        print(s['nome'])
-                                                                                                        num1 = ir.Constant(ir.IntType(32),get_last_value_name(no.children[2].children[0]))
-                                                                                                                    # Armazena o 1 na variave 'a'
-                                                                                                        builder.store(num1, s['code'])                                                          
-                                                                            # Cria um salto para o bloco de saída
-                                                                builder.branch(endBasicBlock)
-
-                                                                            # Adiciona o bloco de saida
-                                                                builder.position_at_end(endBasicBlock)
-
-                                                                            # return 0
-                                                                            # Cria o return
-                                                                returnVal_temp = builder.load(returnVal, name='', align=4)
-                                                                builder.ret(returnVal_temp)   
-
-                                                        #if(get_name(node2) == 'SE'):                                         
+                        #print(nomefuncao,retornofuncao)                
         arquivo = open('vars.ll', 'w')
         arquivo.write(str(module))
         arquivo.close()

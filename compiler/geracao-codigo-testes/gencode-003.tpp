@@ -1,5 +1,6 @@
 {Condicional}
-inteiro: a
+inteiro: a 
+flutuante: b
 
 inteiro principal()
 	inteiro: ret
