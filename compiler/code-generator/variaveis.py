@@ -100,7 +100,7 @@ builder.store(temp, a)
 
 # b = b + h
 b_temp = builder.load(b, "")
-h_temp = builder.load(h,"")
+h_temp = builder.loadbuilder.load(h,"")(h,"")
 temp2 = builder.fadd( b_temp , h_temp , name='temp2', flags=())
 # Armazena temp2 em b
 builder.store(temp2, b)

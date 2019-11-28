@@ -42,7 +42,8 @@ retorna.align = 4
 Zero32 = ir.Constant(ir.IntType(32), 0) 
 
 #armazena o 0 na váriavel retorna
-builder.store(Zero32, retorna)
+builder.store(Zero32, retorna) 
+
 
 # Cria um salto para o bloco de saída
 builder.branch(endBasicBlock)
