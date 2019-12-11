@@ -250,12 +250,12 @@ def tabela_variaveis(root_param):
 
                 if(get_name(node.children[1].children[4].children[0]) == 'acao'): 
                     if(get_name(node.children[1].children[4].children[0].children[0]) != 'retorna'): 
-                        raise Exception("Função {} sem retorno".format(funcao['nome']))
+                        print("Função {} sem retorno".format(funcao['nome']))
                 if(get_name(node.children[1].children[4].children[0]) == 'vazio'): 
                     funcao['retorno'] = 'vazio' 
                     raise Exception("Função {} sem retorno".format(funcao['nome'])) 
-                if(get_name(node.children[1].children[4].children[0].children[0]) != 'retorna' and get_name(node.children[1].children[4].children[1].children[0]) != 'retorna' ): 
-                    raise Exception("Função {} sem retorno".format(funcao['nome']))              
+                #if(get_name(node.children[1].children[4].children[0].children[0]) != 'retorna' and get_name(node.children[1].children[4].children[1].children[0]) != 'retorna' ): 
+                #    print("Função {} sem retorno".format(funcao['nome']))              
                 funcao['estado'] = 'inicializada'         
                 if(get_name(node.children[1].children[2].children[0]) == 'vazio'): 
                     funcao['parametros-formais'] = 0    
@@ -383,7 +383,7 @@ def verify_functions(tableofsymbols,raiz):
             for symbol in tableofsymbols: 
                 #print(symbol)  
                 if(symbol['token'] == 'func' and symbol['parametros-formais'] != 0  and 'parametros-reais' in symbol and symbol['parametros-formais'] != symbol['parametros-reais']): 
-                    raise Exception("Função {} é chamada com o número de parametros {} porém ela foi definida com {} parametros formais".format(symbol['nome'], symbol['parametros-reais'], symbol['parametros-formais']))        
+                    print("Função {} é chamada com o número de parametros {} porém ela foi definida com {} parametros formais".format(symbol['nome'], symbol['parametros-reais'], symbol['parametros-formais']))        
             #parametrosreais  
     for symbol in tableofsymbols:  
         if(symbol['token'] == 'func' and symbol['nome'] != 'principal' and symbol['estado'] != 'utilizada'): 
@@ -447,10 +447,10 @@ def verify_index_var(tableofsymbols, raiz):
                             if(get_name(no2.children[0]) == 'NUMERO_PONTO_FLUTUANTE'): 
                                 raise Exception("A atribuição do um array '{}' na linha '{}' não pode ter indíce do tipo flutuante".format(nomei, no.children[0].children[0].line)) 
                             indexreal = get_last_value_name(no2.children[0])  
-                for s in tableofsymbols: 
-                    if(s['nome'] == nomei): 
-                        if(s['indice'] < indexreal): 
-                            raise Exception('Índice da variavel {} foi excedido na atribuição'.format(s['nome']))
+                #for s in tableofsymbols: 
+                ##    if(s['nome'] == nomei): 
+                #        if(s['indice'] < indexreal): 
+                #            raise Exception('Índice da variavel {} foi excedido na atribuição'.format(s['nome']))
 
 def verify_assignments(tableofsymbols,raiz): 
     parametros = [] 

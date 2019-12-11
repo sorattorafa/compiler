@@ -1,8 +1,21 @@
 from llvmlite import ir 
-from parser import *
-def code_gen(raiz, tableofsymbols):   
-        nse = 0  
-        module = ir.Module('meu_modulo.bc') 
+from parser import *  
+from llvmlite import binding as llvm 
+
+def code_gen(raiz, tableofsymbols):    
+        nse = 0   
+        llvm.initialize()
+        llvm.initialize_all_targets()
+        llvm.initialize_native_target()
+        llvm.initialize_native_asmprinter() 
+
+        module = ir.Module('geracao-codigo-tpp.bc')  
+        module.triple = llvm.get_default_triple()
+
+        target = llvm.Target.from_triple(module.triple)
+        target_machine = target.create_target_machine() 
+        module.data_layout = target_machine.target_data  
+
         t_int = ir.IntType(32) 
         t_func = ir.FunctionType(t_int, ()) 
         for symbol in tableofsymbols: 
@@ -11,23 +24,34 @@ def code_gen(raiz, tableofsymbols):
                                 symbol['code'] = ir.GlobalVariable(module, ir.IntType(32),symbol['nome']) 
                                 symbol['code'].initializer = ir.Constant(ir.IntType(32), 0) 
                                 symbol['code'].linkage = "common"
-                                            # Define o alinhamento em 4
                                 symbol['code'].align = 4 
                         if(symbol['escopo'] == 'global' and symbol['tipo'] == 'flutuante'):  
                                 symbol['code'] = ir.GlobalVariable(module, ir.FloatType(),symbol['nome']) 
                                 symbol['code'].initializer = ir.Constant(ir.FloatType(), 0.0) 
                                 symbol['code'].linkage = "common"
-                                            # Define o alinhamento em 4
-                                symbol['code'].align = 4        
-                                            #print(symbol['nome'])      
-        '''                            
-        ''' 
+                                symbol['code'].align = 4              
         for symb in tableofsymbols: 
-                if(symb['token']== 'func'):  
-                        nomefuncao = symb['nome']   
-                        funcao = ir.Function(module, t_func, name=symb['nome']) 
-                        bb = funcao.append_basic_block('entry') 
-                        builder = ir.IRBuilder(bb) 
+                if(symb['token']== 'func'): 
+                        if('lista-parametros' in symb): 
+                                i = 0 
+                                t_soma = ir.FunctionType(ir.IntType(32), [ir.IntType(32), ir.IntType(32)])
+                                funcao = ir.Function(module, t_soma, symb['nome']) 
+                                nomefuncao = symb['nome'] 
+                                symb['codigo'] = funcao   
+                                for parametro in symb['lista-parametros']:
+                                        funcao.args[i].name = parametro
+                                        i += 1 
+                                bb = funcao.append_basic_block('entry')  
+                                builder = ir.IRBuilder(bb)        
+                        else:
+                                nomefuncao = symb['nome'] 
+                                if symb['nome'] == 'principal': 
+                                        funcao = ir.Function(module, t_func, name='main') 
+                                else:                   
+                                        funcao = ir.Function(module, t_func, name=symb['nome'])  
+                                symb['codigo'] = funcao 
+                                bb = funcao.append_basic_block('entry')  
+                                builder = ir.IRBuilder(bb)  
                         for s in tableofsymbols: 
                                 if s['token'] == 'ID' and s['escopo'] == nomefuncao: 
                                         if(s['tipo'] == 'inteiro'): 
@@ -39,17 +63,167 @@ def code_gen(raiz, tableofsymbols):
                         for node in LevelOrderIter(raiz): 
                                 if(get_name(node) == 'cabecalho'): 
                                         # se eu achar o nome da funcao que eu quero
-                                        if(get_last_value_name(node.children[0]) == symb['nome']): 
+                                        if(get_last_value_name(node.children[0]) == symb['nome']):  
                                                 for retorno in LevelOrderIter(node): 
-                                                        if(get_name(retorno) == 'retorna'): 
-                                                                retornofuncao = get_last_value_name(retorno.children[2].children[0]) 
+                                                        if(get_name(retorno) == 'retorna' and get_name(retorno.children[2]) == 'var'): 
+                                                                if(get_name(retorno.children[2]) == 'var'): 
+                                                                        for ks in tableofsymbols: 
+                                                                                if ks['nome'] == get_last_value_name(retorno.children[2].children[0]): 
+                                                                                        if 'code' in ks:
+                                                                                                retornofuncao = ks['nome'] 
+                                                                                        else:  
+                                                                                                retornofuncao = 0          
+                                                                if(get_name(retorno.children[2]) == 'numero'): 
+                                                                        retornofuncao = get_last_value_name(retorno.children[2].children[0]) 
+                                                                if(get_name(retorno.children[2]) == 'expressao_aditiva'):  
+                                                                        for simbolo in tableofsymbols: 
+                                                                                if simbolo['nome'] == get_last_value_name(retorno.children[2].children[0].children[0]): 
+                                                                                        loadvar1 =  builder.alloca(ir.IntType(32), name=simbolo['nome'])  
+                                                                                if simbolo['nome'] == get_last_value_name(retorno.children[2].children[2].children[0]): 
+                                                                                        loadvar2 =  builder.alloca(ir.IntType(32), name=simbolo['nome']) 
+                                                                          #      print(get_last_value_name(retorno.children[2].children[0].children[0])) #== 'z':  
+                                                                                #        print('oi')
+                                                                                #        loadvar1 = 'z' 
+                                                                                if get_last_value_name(retorno.children[2].children[2].children[0]) == 't': 
+                                                                                        loadvar2 = 't'         
+                                                                                                  
+                                                                        retornofuncao = builder.add( loadvar1 , loadvar2 , name='retorno_soma_funcao', flags=()) 
+                                                        else: 
+                                                                if get_name(retorno) == 'retorna' and get_name(retorno.children[2]) == 'expressao_aditiva':  
+                                                                        retornofuncao = 0  
+                                                                        primeiravariavel = get_last_value_name(retorno.children[2].children[0].children[0]) 
+                                                                        segundavariavel = get_last_value_name(retorno.children[2].children[2].children[0])
+                                                                                               
+                                                                        #load_a = builder.load(a) 
+                                                                        z = builder.alloca(t_int, name=primeiravariavel) 
+                                                                        x = builder.alloca(t_int, name=segundavariavel) 
+                                                                        z = builder.load(z, "") 
+                                                                        x = builder.load(x, "")
+                                                                        retornofuncao = builder.add(z,x, name='add')
+                                                                        #builder.store(add, b) 
+                                                                if get_name(retorno) == 'retorna' and get_name(retorno.children[2]) == 'numero':  
+                                                                        retornofuncao = get_last_value_name(retorno.children[2].children[0])         
                                                 corpo = node.children[4] 
                                                 while len(corpo.children) != 0: 
                                                         corpo = corpo.children[0] 
                                                 #print(get_name(corpo)) 
                                                 while get_name(corpo.parent) != 'cabecalho': 
                                                         if get_name(corpo) == 'corpo': 
-                                                                if(get_name(corpo.children[1]) == 'atribuicao'): 
+                                                                if get_name(corpo.children[1]) == 'leia': 
+                                                                        voidptr_ty = ir.IntType(8).as_pointer()
+                                                                        scanf_ty = ir.FunctionType(ir.IntType(32), [voidptr_ty], var_arg=True)     
+                                                                        scanf = ir.Function(module, scanf_ty, name="leiaInteiro ("+get_last_value_name(corpo.children[1].children[2].children[0]) +')')
+                                                                
+                                                                if get_name(corpo.children[1]) == 'escreva':    
+                                                                        escreva =  ir.FunctionType(ir.VoidType(), [])
+                                                                         
+                                                                        plh_print = ir.Function(module, escreva, 'escreva_valor ('+get_last_value_name(corpo.children[1].children[2].children[0])+')')  
+                                                                                
+                                                                if(get_name(corpo.children[1]) == 'repita'):
+                                                                        repita = funcao.append_basic_block('repita_inicio') 
+                                                                        repitafim = funcao.append_basic_block('repita_fim')   
+
+                                                                        builder.branch(repita)  
+                                                                        builder.position_at_end(repita)  
+                                                                        for mynode in LevelOrderIter(corpo.children[1]):  
+                                                                                if get_name(mynode) == 'leia': 
+                                                                                        voidptr_ty = ir.IntType(8).as_pointer() 
+                                                                                        leia_ty = ir.FunctionType(ir.IntType(32), [voidptr_ty], var_arg=True)     
+                                                                                        scanf = ir.Function(module, leia_ty, name="leiaInteiro ("+get_last_value_name(mynode.children[2].children[0])+')')
+                                                                
+                                                                                if get_name(mynode) == 'escreva': 
+                                                                                        escreva =  ir.FunctionType(ir.VoidType(), [])
+                                                                                        plh_print = ir.Function(module, escreva, 'escreva_valor('+get_last_value_name(mynode.children[2].children[0])+')') 
+                                                                                if get_name(mynode) == 'atribuicao': 
+                                                                                        if get_name(mynode.children[2]) == 'expressao_aditiva': 
+                                                                                                if get_last_value_name(mynode.children[0].children[0]) == get_last_value_name(mynode.children[2].children[0].children[0]): 
+                                                                                                        numerow = get_last_value_name(mynode.children[2].children[2].children[0]) 
+                                                                                                        for symb2 in tableofsymbols: 
+                                                                                                                if symb2['nome'] == get_last_value_name(mynode.children[0].children[0]): 
+                                                                                                                        temp = builder.load(symb2['code'], "")
+                                                                                                                        num = builder.alloca(ir.IntType(32), name=numerow)  
+                                                                                                                         
+                                                                                                                        numreal = builder.load(num) 
+                                                                                                                        temp = builder.add(temp, numreal, name='incremento', flags=())         
+                                                                                        if get_name(mynode.children[2]) == 'chamada_funcao': 
+                                                                                                funcaochamada = get_last_value_name(mynode.children[2].children[0]) 
+                                                                                                variavelatribuicao = get_last_value_name(mynode.children[0].children[0])
+                                                                                                res = builder.alloca(ir.IntType(32), name=variavelatribuicao) 
+                                                                                                if(get_name(mynode.children[2].children[2]) == 'lista_argumentos'):
+                                                                                                        var1 = get_last_value_name(mynode.children[2].children[2].children[0].children[0]) 
+                                                                                                        var2 = get_last_value_name(mynode.children[2].children[2].children[2].children[0])  
+                                                                                                        #print(var1, var2)  
+                                                                                                        for sss in tableofsymbols:  
+                                                                                                                if sss['token'] == 'ID' and sss['nome'] == var1: 
+                                                                                                                        var11 = sss['code']  
+                                                                                                                if sss['token'] == 'ID' and sss['nome'] == var2: 
+                                                                                                                        var22 = sss['code']     
+                                                                                                        for sss in tableofsymbols:         
+                                                                                                                if sss['token'] == 'func' and sss['nome'] == funcaochamada: 
+                                                                                                                        call = builder.call(sss['codigo'], [builder.load(var11), builder.load(var22)])
+                                                                                                                        builder.store(call, res)                         
+                                                                                        nome_var = get_last_value_name(mynode.children[0].children[0])  
+                                                                                        for symbn in tableofsymbols: 
+                                                                                                if symbn['nome'] == nome_var: 
+                                                                                                        store = symbn['code'] 
+                                                                                        if(get_name(mynode.children[2]) == 'chamada_funcao' and get_name(mynode.children[2].children[0]) == 'var'):  
+                                                                                                variavelatribuicao = get_last_value_name(mynode.children[0].children[0])  
+                                                                                                funcaochamada = get_last_value_name(mynode.children[2].children[0]) 
+                                                                                                res = builder.alloca(ir.IntType(32), name=variavelatribuicao)  
+                                                                                                if(get_name(mynode.children[2].children[2]) == 'lista_argumentos'):
+                                                                                                        var1 = get_last_value_name(mynode.children[2].children[2].children[0].children[0]) 
+                                                                                                        var2 = get_last_value_name(mynode.children[2].children[2].children[2].children[0]) 
+                                                                                                for sss in tableofsymbols:  
+                                                                                                        if sss['token'] == 'ID' and sss['nome'] == var1: 
+                                                                                                                var11 = sss['code']  
+                                                                                                        if sss['token'] == 'ID' and sss['nome'] == var2: 
+                                                                                                                var22 = sss['code']     
+                                                                                                for sss in tableofsymbols:         
+                                                                                                        if sss['token'] == 'func' and sss['nome'] == funcaochamada: 
+                                                                                                                call = builder.call(sss['codigo'], [builder.load(var11), builder.load(var22)])
+                                                                                                                builder.store(call, res)
+                                                                                                #print(variavelatribuicao,funcaochamada)
+                                                                                        if get_name(mynode.children[2]) == 'expressao_aditiva': 
+                                                                                                if(get_name(mynode.children[2].children[0]) == 'var'): 
+                                                                                                        for s1 in tableofsymbols: 
+                                                                                                                if s1['nome'] == get_last_value_name(mynode.children[2].children[0].children[0]): 
+                                                                                                                     temp1 = builder.load(s1['code'], "") 
+                                                                                                elif(get_name(mynode.children[2].children[0]) == 'numero'): 
+                                                                                                        temp1 = ir.Constant(ir.IntType(32), get_last_value_name((mynode.children[2].children[0].children[0]))) 
+                                                                                                if(get_name(mynode.children[2].children[2]) == 'var'): 
+                                                                                                        for s1 in tableofsymbols: 
+                                                                                                                if s1['nome'] == get_last_value_name(mynode.children[2].children[2].children[0]): 
+                                                                                                                    temp2 = builder.load(s1['code'], "") 
+                                                                                                elif get_name(mynode.children[2].children[2]) == 'numero':  
+                                                                                                        temp2 = ir.Constant(ir.IntType(32), get_last_value_name((mynode.children[2].children[2].children[0])))                                                                                                                                                   
+                                                                                                storetemp = builder.add( temp1 , temp2 , name='result', flags=()) 
+                                                                                                builder.store(storetemp, store)                                                         
+
+                                                                        if(get_name(corpo.children[1].children[3]) == 'expressao_simples'): 
+                                                                                for symbx in tableofsymbols: 
+                                                                                        if symbx['nome'] == get_last_value_name(corpo.children[1].children[3].children[0].children[0]): 
+                                                                                                codx = symbx['code']  
+                                                                                                cod1 = builder.load(codx, 'b_cmp', align=4) 
+                                                                                if(get_name(corpo.children[1].children[3].children[2]) == 'numero'): 
+                                                                                        cod2 = ir.Constant(ir.IntType(32), get_last_value_name(corpo.children[1].children[3].children[2].children[0]))                
+                                                                                if(get_name(corpo.children[1].children[3].children[1].children[0]) == 'MAIOR'): 
+                                                                                        relacional = '>' 
+                                                                                elif(get_name(corpo.children[1].children[3].children[1].children[0]) == 'MENOR'): 
+                                                                                        relacional = '<'                 
+                                                                                elif(get_name(corpo.children[1].children[3].children[1].children[0]) == 'IGUALDADE'): 
+                                                                                        relacional = '==' 
+                                                                                elif(get_name(corpo.children[1].children[3].children[1].children[0]) == 'MENORIGUAL'): 
+                                                                                        relacional = '<=' 
+                                                                                elif(get_name(corpo.children[1].children[3].children[1].children[0]) == 'MAIOR_GUAL'): 
+                                                                                        relacional = '>='     
+                                                                                elif(get_name(corpo.children[1].children[3].children[1].children[0]) == 'DIFERENTE'): 
+                                                                                        relacional = '!='                                                                                     
+                                                                                # if nequal if do até vai pro fim, if equal vai pra repita novamente 
+                                                                                If_while = builder.icmp_signed(relacional, cod1, cod2, name='if_test_while')
+                                                                                builder.cbranch(If_while, repitafim, repita) 
+                                                                                builder.position_at_end(repitafim)   
+                                                                                
+                                                                if(get_name(corpo.children[1]) == 'atribuicao' and get_name(corpo.children[1].children[2]) != 'chamada_funcao'): 
                                                                         nomevar = get_last_value_name(corpo.children[1].children[0].children[0]) 
                                                                         for t in tableofsymbols: 
                                                                                 if t['nome'] == nomevar and t['token'] == 'ID': 
@@ -58,7 +232,6 @@ def code_gen(raiz, tableofsymbols):
                                                                         if(tipo == 'inteiro'):                 
                                                                                 builder.store(ir.Constant(ir.IntType(32), get_last_value_name(corpo.children[1].children[2].children[0]) ), codename)         
                                                                         if(tipo == 'flutuante' and get_name(corpo.children[1].children[2]) == 'numero'): 
-                                                                                #print(codename)  
                                                                                 number = get_last_value_name(corpo.children[1].children[2].children[0])                                         
                                                                                 builder.store( ir.Constant(ir.FloatType(), float(number)) , codename) 
                                                                         if(get_name(corpo.children[1].children[2]) == 'var'): 
@@ -66,13 +239,30 @@ def code_gen(raiz, tableofsymbols):
                                                                                 for x in tableofsymbols: 
                                                                                         if x['nome'] == nomevariavel: 
                                                                                                 builder.store(builder.load(x['code'],""), codename)          
+                                                                if(get_name(corpo.children[1]) == 'atribuicao' and get_name(corpo.children[1].children[2]) == 'chamada_funcao'): 
+                                                                        funcaochamada = get_last_value_name(corpo.children[1].children[2].children[0]) 
+                                                                        variavelatribuicao = get_last_value_name(corpo.children[1].children[0].children[0])
+                                                                        res = builder.alloca(ir.IntType(32), name=variavelatribuicao) 
+                                                                        if(get_name(corpo.children[1].children[2].children[2]) == 'lista_argumentos'):
+                                                                                var1 = get_last_value_name(corpo.children[1].children[2].children[2].children[0].children[0]) 
+                                                                                var2 = get_last_value_name(corpo.children[1].children[2].children[2].children[2].children[0])  
+                                                                                #print(var1, var2)  
+                                                                                for sss in tableofsymbols:  
+                                                                                        if sss['token'] == 'ID' and sss['nome'] == var1: 
+                                                                                                var11 = sss['code']  
+                                                                                        if sss['token'] == 'ID' and sss['nome'] == var2: 
+                                                                                                var22 = sss['code']     
+                                                                                for sss in tableofsymbols:         
+                                                                                        if sss['token'] == 'func' and sss['nome'] == funcaochamada: 
+                                                                                                call = builder.call(sss['codigo'], [builder.load(var11), builder.load(var22)])
+                                                                                                builder.store(call, res)
                                                                 if get_name(corpo.children[1]) == 'se': 
                                                                         nse += 1  
                                                                         iftrue = funcao.append_basic_block('iftrue_{}'.format(nse))
                                                                         iffalse = funcao.append_basic_block('iffalse_{}'.format(nse))
                                                                         ifend = funcao.append_basic_block('ifend_{}'.format(nse)) 
                                                                         
-                                                                        if get_name(corpo.children[1].children[1].children[1].children[0]) == 'MAIOR': 
+                                                                        if get_name(corpo.children[1].children[1].children[1]) == 'operador_relacional': 
                                                                                 var1 = get_last_value_name(corpo.children[1].children[1].children[0].children[0]) 
                                                                                 var2 = get_last_value_name(corpo.children[1].children[1].children[2].children[0]) 
                                                                                 aux1 = 0 
@@ -88,24 +278,101 @@ def code_gen(raiz, tableofsymbols):
                                                                                         a_cmp = ir.Constant(ir.IntType(32), var1) 
                                                                                 if(aux2 == 0):  
                                                                                         b_cmp = ir.Constant(ir.IntType(32), var2) 
-                                                                                If_1 = builder.icmp_signed('>', a_cmp, b_cmp, name='if_test_1')
+                                                                                if(get_name(corpo.children[1].children[1].children[1].children[0]) == 'MAIOR'): 
+                                                                                        relacional = '>' 
+                                                                                elif(get_name(corpo.children[1].children[1].children[1].children[0]) == 'MENOR'): 
+                                                                                        relacional = '<'                 
+                                                                                elif(get_name(corpo.children[1].children[1].children[1].children[0]) == 'IGUALDADE'): 
+                                                                                        relacional = '==' 
+                                                                                elif(get_name(corpo.children[1].children[1].children[1].children[0]) == 'MENORIGUAL'): 
+                                                                                        relacional = '<=' 
+                                                                                elif(get_name(corpo.children[1].children[1].children[1].children[0]) == 'MAIOR_GUAL'): 
+                                                                                        relacional = '>='     
+                                                                                elif(get_name(corpo.children[1].children[1].children[1].children[0]) == 'DIFERENTE'): 
+                                                                                        relacional = '!='                                                          
+                                                                                        
+                                                                                If_1 = builder.icmp_signed(relacional, a_cmp, b_cmp, name='if_test_{}'.format(nse))
                                                                                 builder.cbranch(If_1, iftrue, iffalse) 
                                                                                 builder.position_at_end(iftrue) 
                                                                                 for ny in LevelOrderIter(corpo.children[1].children[3]): 
+                                                                                        # VERIFIFICAR SE TEM OUTRO SE  dentro do corpo de um se, verificar se tem laco dentro do se
                                                                                         if(get_name(ny) == 'atribuicao'): 
-                                                                                                print(get_name(ny)) 
+                                                                                               # print(get_name(ny)) 
                                                                                                 for sy in tableofsymbols: 
                                                                                                         if sy['nome'] == get_last_value_name(ny.children[0].children[0]) and sy['token'] == 'ID': 
                                                                                                                 if get_name(ny.children[2]) == 'numero':                        
                                                                                                                         builder.store(ir.Constant(ir.IntType(32), get_last_value_name(ny.children[2].children[0])), sy['code'])
-                                                                                builder.branch(ifend) 
-                                                                                ## make the same way to else                                                  
-                                                                        #print(get_name(corpo.children[1]))  
+                                                                                        # if dentro do if  
+                                                                                        if(get_name(ny) == 'se'):
+                                                                                                iftrue2 = funcao.append_basic_block('iftrue_2')
+                                                                                                iffalse2 = funcao.append_basic_block('iffalse_2')
+                                                                                                ifend2 = funcao.append_basic_block('ifend_2')   
+                                                                                                if(get_name(ny.children[1].children[1]) == 'operador_relacional'):
+                                                                                                        var3 = get_last_value_name(ny.children[1].children[0].children[0]) 
+                                                                                                        var4 = get_last_value_name(ny.children[1].children[2].children[0])   
+                                                                                                        aux3 = 0 
+                                                                                                        aux4 = 0 
+                                                                                                        for k in tableofsymbols: 
+                                                                                                                if k['nome'] == var3: 
+                                                                                                                        c_cmp = builder.load(k['code'], k['nome']+'_cmp', align=4) 
+                                                                                                                        aux3 = 1 
+                                                                                                                if k['nome'] == var4:  
+                                                                                                                        d_cmp = builder.load(k['code'], k['nome']+'_cmp', align=4) 
+                                                                                                                        aux4 = 1
+                                                                                                        if(aux3 == 0): 
+                                                                                                                c_cmp = ir.Constant(ir.IntType(32), var3) 
+                                                                                                        if(aux4 == 0):  
+                                                                                                                d_cmp = ir.Constant(ir.IntType(32), var4)  
+                                                                                                        if(get_name(ny.children[1].children[1].children[0]) == 'MAIOR'): 
+                                                                                                                relacional = '>' 
+                                                                                                        elif(get_name(ny.children[1].children[1].children[0]) == 'MENOR'): 
+                                                                                                                relacional = '<'                 
+                                                                                                        elif(get_name(ny.children[1].children[1].children[0]) == 'IGUALDADE'): 
+                                                                                                                relacional = '==' 
+                                                                                                        elif(get_name(ny.children[1].children[1].children[0]) == 'MENORIGUAL'): 
+                                                                                                                relacional = '<=' 
+                                                                                                        elif(get_name(ny.children[1].children[1].children[0]) == 'MAIOR_GUAL'): 
+                                                                                                                relacional = '>='     
+                                                                                                        elif(get_name(ny.children[1].children[1].children[0]) == 'DIFERENTE'): 
+                                                                                                                relacional = '!='        
+                                                                                                        If_2 = builder.icmp_signed(relacional, c_cmp, d_cmp, name='if_test_2')
+                                                                                                        builder.cbranch(If_2, iftrue2, iffalse2) 
+                                                                                                        builder.position_at_end(iftrue2)  
+                                                                                                        if get_name(ny.children[3]) == 'atribuicao': 
+                                                                                                                v1 = ny.children[3].children[0].children[0]
+                                                                                                                r1 = ny.children[3].children[2].children[0] 
+                                                                                                                for sf in tableofsymbols: 
+                                                                                                                        if sf['nome'] == get_last_value_name(v1) and sf['token'] == 'ID': 
+                                                                                                                                if(get_name(ny.children[3].children[2]) == 'numero'):
+                                                                                                                                        builder.store(ir.Constant(ir.IntType(32), get_last_value_name(r1)), sf['code'])  
+                                                                                                        builder.branch(ifend2)                                 
+                                                                                                        builder.position_at_end(iffalse2)  
+                                                                                                        if get_name(ny.children[5]) == 'atribuicao': 
+                                                                                                                v1 = ny.children[5].children[0].children[0]
+                                                                                                                r1 = ny.children[5].children[2].children[0] 
+                                                                                                                for sf in tableofsymbols: 
+                                                                                                                        if sf['nome'] == get_last_value_name(v1) and sf['token'] == 'ID': 
+                                                                                                                                if(get_name(ny.children[5].children[2]) == 'numero'):
+                                                                                                                                        builder.store(ir.Constant(ir.IntType(32), get_last_value_name(r1)), sf['code']) 
+                                                                                                        builder.branch(ifend2)     
+                                                                                                         
+                                                                                                        builder.position_at_end(ifend2)   
+                                                                                                       
+                                                                          
+                                                                                builder.branch(ifend)  
+                                                                                builder.position_at_end(iffalse) 
+                                                                                if(get_name(corpo.children[1].children[4]) == 'SENAO'):  
+                                                                                        if get_name(corpo.children[1].children[5]) == 'atribuicao': 
+                                                                                                for sy in tableofsymbols: 
+                                                                                                        if sy['nome'] == get_last_value_name(corpo.children[1].children[5].children[0].children[0]) and sy['token'] == 'ID':  
+                                                                                                                if get_name(corpo.children[1].children[5].children[2]) == 'numero': 
+                                                                                                                        builder.store(ir.Constant(ir.IntType(32), get_last_value_name(corpo.children[1].children[5].children[2].children[0])), sy['code'])                                                                                                                                                        
+                                                                                builder.branch(ifend)   
+                                                                                builder.position_at_end(ifend)
                                                                         
-
                                                         corpo = corpo.parent 
                         exitBasicBlock = funcao.append_basic_block('exit') 
-                        #builder.branch(exitBasicBlock) 
+                        builder.branch(exitBasicBlock) 
                         builder = ir.IRBuilder(exitBasicBlock) 
                         booleano = 0                                         
                         for z in tableofsymbols: 
@@ -113,11 +380,13 @@ def code_gen(raiz, tableofsymbols):
                                         returnVal_temp = builder.load(z['code'], name='ret_temp', align=4)   
                                         builder.ret(returnVal_temp) 
                                         booleano = 1 
-                        if(booleano == 0):   
-                                builder.ret(ir.Constant(ir.IntType(32), retornofuncao))
-
-                        #  fazer o retorno da funcao               
+                        if(booleano == 0):    
+                                if len(funcao.args) != 0:
+                                        res = builder.add(funcao.args[0], funcao.args[1])
+                                        builder.ret(res)    
+                                else: 
+                                        builder.ret(ir.Constant(ir.IntType(32), retornofuncao))                      
         arquivo = open('root.ll', 'w')
         arquivo.write(str(module))
         arquivo.close()
-        print(module)                                                          
+        print(module)    

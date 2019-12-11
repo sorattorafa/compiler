@@ -14,6 +14,5 @@ inteiro principal()
 	d := 3.3
 	a := 10
 	b := d
-	
-    retorna(0)
+    retorna(1)
 fim

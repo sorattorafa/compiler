@@ -1,22 +1,40 @@
-; ModuleID = "meu_modulo.bc"
-target triple = "unknown-unknown-unknown"
-target datalayout = ""
+; ModuleID = "geracao-codigo-tpp.bc"
+target triple = "x86_64-unknown-linux-gnu"
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-@"a" = common global i32 0, align 4
-define i32 @"principal"() 
+define i32 @"soma"(i32 %"a", i32 %"b") 
 {
 entry:
-  %"ret" = alloca i32, align 4
-  store i32 10, i32* @"a"
-  %"a_cmp" = load i32, i32* @"a", align 4
-  %"if_test_1" = icmp sgt i32 %"a_cmp", 5
-  br i1 %"if_test_1", label %"iftrue_1", label %"iffalse_1"
-iftrue_1:
-  store i32 1, i32* %"ret"
-  br label %"ifend_1"
-iffalse_1:
-ifend_1:
+  %"a.1" = alloca i32
+  %"b.1" = alloca i32
+  %".4" = load i32, i32* %"a.1"
+  %".5" = load i32, i32* %"b.1"
+  %"add" = add i32 %".4", %".5"
+  br label %"exit"
 exit:
-  %"ret_temp" = load i32, i32* %"ret", align 4
+  %".7" = add i32 %"a", %"b"
+  ret i32 %".7"
+}
+
+define i32 @"main"() 
+{
+entry:
+  %"a" = alloca i32, align 4
+  %"b" = alloca i32, align 4
+  %"c" = alloca i32, align 4
+  %"c.1" = alloca i32
+  %".2" = load i32, i32* %"a"
+  %".3" = load i32, i32* %"b"
+  %".4" = call i32 @"soma"(i32 %".2", i32 %".3")
+  store i32 %".4", i32* %"c.1"
+  br label %"exit"
+exit:
+  %"ret_temp" = load i32, i32* %"c", align 4
   ret i32 %"ret_temp"
 }
+
+declare i32 @"leiaInteiro (a)"(i8* %".1", ...) 
+
+declare i32 @"leiaInteiro (b)"(i8* %".1", ...) 
+
+declare void @"escreva_valor (c)"() 

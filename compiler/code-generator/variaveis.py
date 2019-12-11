@@ -99,11 +99,14 @@ temp = builder.add(a_temp, num10, name='temp', flags=())
 builder.store(temp, a)
 
 # b = b + h
-b_temp = builder.load(b, "")
+b_temp = builder.load(b, "") 
+
 h_temp = builder.loadbuilder.load(h,"")(h,"")
 temp2 = builder.fadd( b_temp , h_temp , name='temp2', flags=())
 # Armazena temp2 em b
-builder.store(temp2, b)
+builder.store(temp2, b) 
+
+
 
 # Cria um salto para o bloco de saída
 builder.branch(endBasicBlock)

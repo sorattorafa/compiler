@@ -1,7 +1,9 @@
 {Parametros de função}
-
-inteiro func(inteiro: p1, flutuante: p2)
-  inteiro: r
+inteiro:p 
+inteiro:t
+inteiro func(inteiro: p, inteiro: t)
+  inteiro: r 
+  r := 1
   retorna(r)
 fim
 

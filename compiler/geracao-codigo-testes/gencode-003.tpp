@@ -15,5 +15,5 @@ inteiro principal()
 		ret := 0
   fim
 
-  retorna(0)
+  retorna(ret)
 fim

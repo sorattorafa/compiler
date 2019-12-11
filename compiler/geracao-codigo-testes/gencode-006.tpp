@@ -1,5 +1,3 @@
-
-
 inteiro soma(inteiro: a, inteiro:b)
     retorna(a + b)
 fim
@@ -21,4 +19,6 @@ inteiro principal()
     até i = 5
 
     retorna(0)
-fim
+fim 
+
+{ verificar atribuicao de chamada de funcao }
