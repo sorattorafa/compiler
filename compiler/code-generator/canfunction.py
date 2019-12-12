@@ -61,7 +61,8 @@ b = builder.alloca(ir.IntType(32), name='b')
 builder.store(ir.Constant(ir.IntType(32), 2), b)
 
 # int res = soma(a,b);
-res = builder.alloca(ir.IntType(32), name='res')
+res = builder.alloca(ir.IntType(32), name='res') 
+
 call = builder.call(soma, [builder.load(a), builder.load(b)])
 builder.store(call, res)
 

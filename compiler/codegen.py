@@ -1,5 +1,5 @@
 from llvmlite import ir 
-from parser import *  
+from main import *  
 from llvmlite import binding as llvm 
 
 def code_gen(raiz, tableofsymbols):    
@@ -75,31 +75,42 @@ def code_gen(raiz, tableofsymbols):
                                                                                                 retornofuncao = 0          
                                                                 if(get_name(retorno.children[2]) == 'numero'): 
                                                                         retornofuncao = get_last_value_name(retorno.children[2].children[0]) 
-                                                                if(get_name(retorno.children[2]) == 'expressao_aditiva'):  
+                                                                if(get_name(retorno.children[2]) == 'expressao_aditiva'):   
                                                                         for simbolo in tableofsymbols: 
                                                                                 if simbolo['nome'] == get_last_value_name(retorno.children[2].children[0].children[0]): 
                                                                                         loadvar1 =  builder.alloca(ir.IntType(32), name=simbolo['nome'])  
                                                                                 if simbolo['nome'] == get_last_value_name(retorno.children[2].children[2].children[0]): 
                                                                                         loadvar2 =  builder.alloca(ir.IntType(32), name=simbolo['nome']) 
-                                                                          #      print(get_last_value_name(retorno.children[2].children[0].children[0])) #== 'z':  
-                                                                                #        print('oi')
-                                                                                #        loadvar1 = 'z' 
                                                                                 if get_last_value_name(retorno.children[2].children[2].children[0]) == 't': 
                                                                                         loadvar2 = 't'         
                                                                                                   
                                                                         retornofuncao = builder.add( loadvar1 , loadvar2 , name='retorno_soma_funcao', flags=()) 
                                                         else: 
                                                                 if get_name(retorno) == 'retorna' and get_name(retorno.children[2]) == 'expressao_aditiva':  
-                                                                        retornofuncao = 0  
-                                                                        primeiravariavel = get_last_value_name(retorno.children[2].children[0].children[0]) 
-                                                                        segundavariavel = get_last_value_name(retorno.children[2].children[2].children[0])
-                                                                                               
-                                                                        #load_a = builder.load(a) 
-                                                                        z = builder.alloca(t_int, name=primeiravariavel) 
-                                                                        x = builder.alloca(t_int, name=segundavariavel) 
-                                                                        z = builder.load(z, "") 
-                                                                        x = builder.load(x, "")
-                                                                        retornofuncao = builder.add(z,x, name='add')
+                                                                        if(get_name(retorno.children[2].children[1].children[0]) == 'SOMA'): 
+                                                                        
+                                                                                retornofuncao = 0  
+                                                                                primeiravariavel = get_last_value_name(retorno.children[2].children[0].children[0]) 
+                                                                                segundavariavel = get_last_value_name(retorno.children[2].children[2].children[0])
+                                                                                                
+                                                                                #load_a = builder.load(a) 
+                                                                                z = builder.alloca(t_int, name=primeiravariavel) 
+                                                                                x = builder.alloca(t_int, name=segundavariavel) 
+                                                                                z = builder.load(z, "") 
+                                                                                x = builder.load(x, "")
+                                                                                retornofuncao = builder.add(z,x, name='add') 
+                                                                        if(get_name(retorno.children[2].children[1].children[0]) == 'SUBTRACAO'): 
+                                                                        
+                                                                                retornofuncao = 0  
+                                                                                primeiravariavel = get_last_value_name(retorno.children[2].children[0].children[0]) 
+                                                                                segundavariavel = get_last_value_name(retorno.children[2].children[2].children[0])
+                                                                                                
+                                                                                #load_a = builder.load(a) 
+                                                                                z = builder.alloca(t_int, name=primeiravariavel) 
+                                                                                x = builder.alloca(t_int, name=segundavariavel) 
+                                                                                z = builder.load(z, "") 
+                                                                                x = builder.load(x, "")
+                                                                                retornofuncao = builder.sub(z,x, name='add')        
                                                                         #builder.store(add, b) 
                                                                 if get_name(retorno) == 'retorna' and get_name(retorno.children[2]) == 'numero':  
                                                                         retornofuncao = get_last_value_name(retorno.children[2].children[0])         
@@ -144,8 +155,39 @@ def code_gen(raiz, tableofsymbols):
                                                                                                                         num = builder.alloca(ir.IntType(32), name=numerow)  
                                                                                                                          
                                                                                                                         numreal = builder.load(num) 
-                                                                                                                        temp = builder.add(temp, numreal, name='incremento', flags=())         
-                                                                                        if get_name(mynode.children[2]) == 'chamada_funcao': 
+                                                                                                                        temp = builder.add(temp, numreal, name='incremento', flags=())   
+                                                                                        if get_name(mynode.children[2]) == 'chamada_funcao' and get_name(mynode.children[2].children[2].children[0]) == 'chamada_funcao':  
+                                                                                                funcaochamada = get_last_value_name(mynode.children[2].children[0])  
+                                                                                                funcao1 = get_last_value_name(mynode.children[2].children[2].children[0].children[0]) 
+                                                                                                funcao2 = get_last_value_name(mynode.children[2].children[2].children[2].children[0])  
+                                                                                                primeiravariavel = get_last_value_name(mynode.children[2].children[2].children[0].children[2].children[0].children[0])
+                                                                                                segundavariavel = get_last_value_name(mynode.children[2].children[2].children[0].children[2].children[2].children[0]) 
+                                                                                                terceiravariavel = get_last_value_name(mynode.children[2].children[2].children[2].children[2].children[0].children[0]) 
+                                                                                                quartavariavel = get_last_value_name(mynode.children[2].children[2].children[2].children[2].children[2].children[0]) 
+                                                                                                for sss in tableofsymbols: 
+                                                                                                        if sss['token'] == 'ID': 
+                                                                                                                if sss['nome'] == primeiravariavel: 
+                                                                                                                        primeirocodigo = sss['code'] 
+                                                                                                                if sss['nome'] == segundavariavel: 
+                                                                                                                        segundocodigo = sss['code'] 
+                                                                                                                if sss['nome'] == terceiravariavel: 
+                                                                                                                        terceirocodigo = sss['code'] 
+                                                                                                                if sss['nome'] == quartavariavel: 
+                                                                                                                        quartocodigo = sss['code']                 
+                                                                                                for sss in tableofsymbols: 
+                                                                                                        if sss['token'] == 'func' and sss['nome'] == funcao1: 
+                                                                                                                codigofuncao1 = sss['codigo'] 
+                                                                                                        if sss['token'] == 'func' and sss['nome'] == funcao2: 
+                                                                                                                codigofuncao2 = sss['codigo'] 
+                                                                                                                
+                                                                                                for sss in tableofsymbols:         
+                                                                                                        if sss['token'] == 'func' and sss['nome'] == funcaochamada: 
+                                                                                                                #print('código', sss['codigo'])  
+                                                                                                                call = builder.call(sss['codigo'], [builder.call(codigofuncao1, [builder.load(primeirocodigo) , builder.load(segundocodigo)]) ,  builder.call(codigofuncao2, [builder.load(terceirocodigo) , builder.load(quartocodigo)])])
+                                                                                                                # call = builder.call(sss['codigo], [builder.call(codigofuncao1, [builder.load(a), builder.load(b)]) , builder.call(soma, [builder.load(a), builder.load(b)])])                 
+                                                                                        if get_name(mynode.children[2]) == 'chamada_funcao' and get_name(mynode.children[2].children[2].children[0]) != 'chamada_funcao':  
+
+                                                                                                # call = builder.call(soma, [builder.call(soma, [builder.load(a), builder.load(b)]) , builder.call(soma, [builder.load(a), builder.load(b)])]) 
                                                                                                 funcaochamada = get_last_value_name(mynode.children[2].children[0]) 
                                                                                                 variavelatribuicao = get_last_value_name(mynode.children[0].children[0])
                                                                                                 res = builder.alloca(ir.IntType(32), name=variavelatribuicao) 
@@ -295,7 +337,6 @@ def code_gen(raiz, tableofsymbols):
                                                                                 builder.cbranch(If_1, iftrue, iffalse) 
                                                                                 builder.position_at_end(iftrue) 
                                                                                 for ny in LevelOrderIter(corpo.children[1].children[3]): 
-                                                                                        # VERIFIFICAR SE TEM OUTRO SE  dentro do corpo de um se, verificar se tem laco dentro do se
                                                                                         if(get_name(ny) == 'atribuicao'): 
                                                                                                # print(get_name(ny)) 
                                                                                                 for sy in tableofsymbols: 

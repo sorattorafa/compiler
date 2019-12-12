@@ -20,7 +20,6 @@ module = ir.Module('meu_modulo.bc')
 typeA = ir.ArrayType(ir.IntType(64), 1024)
 
 arrayA = ir.GlobalVariable(module, typeA, "A")
-arrayA.initializer = ir.Constant.array(ir.IntType(64), 0)
 
 # arrayA.initializer = ir.IntType(64)
 arrayA.linkage = "common"

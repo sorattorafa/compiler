@@ -8,8 +8,10 @@ inteiro func(inteiro: p, inteiro: t)
 fim
 
 inteiro principal()
-  inteiro: x
-  x := func(1,2)
+  inteiro: x 
+  t:= 1 
+  p:= 2
+  x := func(t,p)
   retorna(0)
 fim
 

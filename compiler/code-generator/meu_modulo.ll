@@ -2,31 +2,17 @@
 target triple = "unknown-unknown-unknown"
 target datalayout = ""
 
-define i32 @"soma"(i32 %"a", i32 %"b") 
+@"A" = common global [1024 x i64] undef, align 16
+define i64 @"main"() 
 {
 entry:
-  %".4" = add i32 %"a", %"b"
-  ret i32 %".4"
-}
-
-define void @"teste"() 
-{
-entry:
-  ret void
-}
-
-define i32 @"main"() 
-{
-entry:
-  %"a" = alloca i32
-  store i32 1, i32* %"a"
-  %"b" = alloca i32
-  store i32 2, i32* %"b"
-  %"res" = alloca i32
-  %".4" = load i32, i32* %"a"
-  %".5" = load i32, i32* %"b"
-  %".6" = call i32 @"soma"(i32 %".4", i32 %".5")
-  store i32 %".6", i32* %"res"
-  call void @"teste"()
-  ret i32* %"res"
+  %"retorno" = alloca i64
+  store i64 0, i64* %"retorno"
+  %"B" = alloca [1024 x i64], align 16
+  %"ptr_A_49" = getelementptr [1024 x i64], [1024 x i64]* @"A", i64 0, i64 49
+  %".3" = load i64, i64* %"ptr_A_49", align 4
+  br label %"exit"
+exit:
+  %".5" = load i64, i64* %"retorno"
+  ret i64 %".5"
 }

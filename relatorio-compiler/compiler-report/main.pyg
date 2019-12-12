@@ -1,0 +1,69 @@
+target triple = "x86_64-unknown-linux-gnu"
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+
+define i32 @"soma"(i32 %"x", i32 %"y")
+{
+	entry:
+	%"x.1" = alloca i32
+	%"y.1" = alloca i32
+	%".4" = load i32, i32* %"x.1"
+	%".5" = load i32, i32* %"y.1"
+	%"add" = add i32 %".4", %".5"
+	br label %"exit"
+	exit:
+	%".7" = add i32 %"x", %"y"
+	ret i32 %".7"
+}
+
+define i32 @"sub"(i32 %"z", i32 %"t")
+{
+	entry:
+	%"z.1" = alloca i32
+	%"t.1" = alloca i32
+	%".4" = load i32, i32* %"z.1"
+	%".5" = load i32, i32* %"t.1"
+	%"add" = add i32 %".4", %".5"
+	br label %"exit"
+	exit:
+	%".7" = add i32 %"z", %"t"
+	ret i32 %".7"
+}
+
+define i32 @"main"()
+{
+	entry:
+	%"a" = alloca i32, align 4
+	%"b" = alloca i32, align 4
+	%"c" = alloca i32, align 4
+	%"i" = alloca i32, align 4
+	store i32 0, i32* %"i"
+	br label %"repita_inicio"
+	repita_inicio:
+	%".4" = load i32, i32* %"i"
+	%"1" = alloca i32
+	%".5" = load i32, i32* %"1"
+	%"incremento" = add i32 %".4", %".5"
+	%".6" = load i32, i32* %"i"
+	%"result" = add i32 %".6", 1
+	store i32 %"result", i32* %"i"
+	%".8" = load i32, i32* %"a"
+	%".9" = load i32, i32* %"b"
+	%".10" = call i32 @"soma"(i32 %".8", i32 %".9")
+	%".11" = load i32, i32* %"a"
+	%".12" = load i32, i32* %"b"
+	%".13" = call i32 @"sub"(i32 %".11", i32 %".12")
+	%".14" = call i32 @"soma"(i32 %".10", i32 %".13")
+	%"b_cmp" = load i32, i32* %"i", align 4
+	%"if_test_while" = icmp eq i32 %"b_cmp", 5
+	br i1 %"if_test_while", label %"repita_fim", label %"repita_inicio"
+	repita_fim:
+	br label %"exit"
+	exit:
+	ret i32 0
+}
+
+declare void @"escreva_valor(c)"()
+
+declare i32 @"leiaInteiro (a)"(i8* %".1", ...)
+
+declare i32 @"leiaInteiro (b)"(i8* %".1", ...)
