@@ -2,30 +2,29 @@
 target triple = "x86_64-unknown-linux-gnu"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-@"p" = common global i32 0, align 4
-@"t" = common global i32 0, align 4
-define i32 @"func"(i32 %"p", i32 %"t") 
-{
-entry:
-  %"r" = alloca i32, align 4
-  store i32 1, i32* %"r"
-  br label %"exit"
-exit:
-  %"ret_temp" = load i32, i32* %"r", align 4
-  ret i32 %"ret_temp"
-}
+declare i32 @"leiaInteiro"() 
+
+declare float @"leiaFlutuante"() 
+
+declare void @"escrevaInteiro"(i32 %".1") 
+
+declare void @"escrevaFlutuante"(float %".1") 
 
 define i32 @"main"() 
 {
 entry:
   %"x" = alloca i32, align 4
-  store i32 1, i32* @"t"
-  store i32 2, i32* @"p"
-  %"x.1" = alloca i32
-  %".4" = load i32, i32* @"t"
-  %".5" = load i32, i32* @"p"
-  %".6" = call i32 @"func"(i32 %".4", i32 %".5")
-  store i32 %".6", i32* %"x.1"
+  %"y" = alloca float, align 4
+  store i32 0, i32* %"x"
+  store float              0x0, float* %"y"
+  %".4" = call i32 @"leiaInteiro"()
+  store i32 %".4", i32* %"x"
+  %".6" = call float @"leiaFlutuante"()
+  store float %".6", float* %"y"
+  %".8" = load i32, i32* %"x"
+  call void @"escrevaInteiro"(i32 %".8")
+  %".10" = load float, float* %"y"
+  call void @"escrevaFlutuante"(float %".10")
   br label %"exit"
 exit:
   ret i32 0

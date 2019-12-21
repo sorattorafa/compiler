@@ -2,8 +2,7 @@ inteiro: A[1024]
 inteiro: B[1024]
 
 inteiro principal()
-    inteiro: a 
-    inteiro: i
+    inteiro: a
     i := 0
 
     repita

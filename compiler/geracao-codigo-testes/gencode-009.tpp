@@ -2,14 +2,13 @@ flutuante: A[1024]
 flutuante: B[1024]
 flutuante: C[1024]
 
-inteiro somaVetores(inteiro: n)
+somaVetores(inteiro: n)
     inteiro: i
     i := 0
     repita
         C[i] := A[i] + B[i]
         i := i + 1
     até i = n 
-    retorna(0)  
 fim
 
 inteiro principal()

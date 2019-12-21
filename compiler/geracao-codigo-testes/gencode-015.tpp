@@ -1,17 +1,13 @@
 {Parametros de função}
-inteiro:p 
-inteiro:t
-inteiro func(inteiro: p, inteiro: t)
-  inteiro: r 
-  r := 1
+
+inteiro func(inteiro: x, inteiro: y)
+  inteiro: r
   retorna(r)
 fim
 
 inteiro principal()
-  inteiro: x 
-  t:= 1 
-  p:= 2
-  x := func(t,p)
+  inteiro: x
+  x := func(1,2)
   retorna(0)
 fim
 

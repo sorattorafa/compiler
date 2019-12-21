@@ -1,18 +1,15 @@
 {Declaração de variáveis}
-inteiro: a 
-flutuante: b
-inteiro func() 
-	inteiro: c 
-	c := 2
- 	a := 10 
-	retorna(a) 
-fim  
+inteiro: a
 
 inteiro principal()
-	inteiro: b 
-	flutuante: d 
-	d := 3.3
+	inteiro: b
+	flutuante: c 
+	leia(c)
 	a := 10
-	b := d
-    retorna(1)
+	leia(a)
+	b := a 
+	escreva(b)  
+	escreva(c)
+	
+    retorna(b)
 fim

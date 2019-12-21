@@ -1,10 +1,9 @@
 {Condicional}
-inteiro: a 
-flutuante: b
+inteiro: a
 
 inteiro principal()
 	inteiro: ret
-	a := 10    
+	leia(a)   
 	se a > 5 então
 		se a < 20 então
 			ret := 1
@@ -13,7 +12,8 @@ inteiro principal()
 		fim
 	senão
 		ret := 0
-  fim
+  fim 
+  escreva(ret)
 
-  retorna(ret)
+  retorna(0)
 fim

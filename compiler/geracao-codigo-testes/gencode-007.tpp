@@ -19,9 +19,8 @@ inteiro principal()
         leia(a)
         leia(b)
         c := soma(soma(a,b), sub(a,b))
-        escreva(c)
         i := i + 1
-    até i = 5
+    até i <= 5
 
     retorna(0)
 fim
