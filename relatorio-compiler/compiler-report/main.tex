@@ -613,38 +613,109 @@ def codegen():
 	arquivo.write(str(module))
 	arquivo.close()
 	print(module) 
-\end{lstlisting} 
+\end{lstlisting}  
 
+Para exemplificar o funcionamento da biblioteca llvmlite basta visualizar o seguinte código: 
+
+\begin{lstlisting}[language= Python, caption= Bibliotecas para geração de código em Python, label=cod:coddp] 
+'''
+Será gerado um código em LLVM como este em C:
+int soma (int a, int b){
+return a + b;
+}
+void teste (){
+}
+int main(){
+int a = 1;
+int b = 2;
+int res = soma(a,b);
+teste();
+
+return res;
+}
+'''
+
+# Cria o módulo.
+module = ir.Module('meu_modulo.bc')
+
+# Cria o cabeçalho da função soma
+t_soma = ir.FunctionType(ir.IntType(32), [ir.IntType(32), ir.IntType(32)])
+soma = ir.Function(module, t_soma, 'soma')
+soma.args[0].name = 'a'
+soma.args[1].name = 'b'
+
+# Cria o corpo da função soma
+entryBlock = soma.append_basic_block('entry')
+builder = ir.IRBuilder(entryBlock)
+
+res = builder.add(soma.args[0], soma.args[1])
+builder.ret(res)
+
+# Cria o cabeçalho da função teste
+t_teste = ir.FunctionType(ir.VoidType(), [])
+teste = ir.Function(module, t_teste, 'teste')
+
+# Cria o corpo da função teste
+entryBlock = teste.append_basic_block('entry')
+builder = ir.IRBuilder(entryBlock)
+
+builder.ret_void()
+
+# Cria o cabeçalho da função main
+t_main = ir.FunctionType(ir.IntType(32), [])
+main = ir.Function(module, t_main, 'main')
+
+# Cria o corpo da função main
+entryBlock = main.append_basic_block('entry')
+builder = ir.IRBuilder(entryBlock)
+
+# int a = 1;
+a = builder.alloca(ir.IntType(32), name='a')
+builder.store(ir.Constant(ir.IntType(32), 1), a)
+
+# int b = 2;
+b = builder.alloca(ir.IntType(32), name='b')
+builder.store(ir.Constant(ir.IntType(32), 2), b)
+
+# int res = soma(a,b);
+res = builder.alloca(ir.IntType(32), name='res') 
+
+call = builder.call(soma, [builder.load(a), builder.load(b)])
+builder.store(call, res)
+
+# teste();
+builder.call(teste, [])
+
+# return res;
+builder.ret(res)
+
+arquivo = open('meu_modulo.ll', 'w')
+arquivo.write(str(module))
+arquivo.close()
+print(module) 
+\end{lstlisting}
 
 \subsection{Execução dos testes de geração de código}  
 Para visualização do processo de geração de código será utilizado o seguinte programa na linguagem nova tpp: 
 
 \begin{lstlisting}[language=bash, caption=Programa na linguagem tpp] 
 
-inteiro soma(inteiro: x, inteiro: y)
-retorna(x + y)
-fim
-
-inteiro sub(inteiro: z, inteiro: t)
-	retorna(z + t)
+inteiro soma(inteiro: a, inteiro:b)
+	retorna(a + b)
 fim
 
 inteiro principal()
 	inteiro: a
 	inteiro: b
 	inteiro: c
-	inteiro: i
-	
-	i := 0
-	
-	repita
+
 	leia(a)
 	leia(b)
-	c := soma(soma(a,b), sub(a,b))
+
+	c := soma(a, b)
+
 	escreva(c)
-	i := i + 1
-	até i = 5
-	
+
 	retorna(0)
 fim
 \end{lstlisting}
@@ -655,84 +726,63 @@ Os testes podem ser executados como o seguinte comando:
 $ python3 main.py geracao-codigo-testes/gencode-007.tpp 
 $ sudo ./run.sh
 \end{lstlisting}
-O primeiro comando no terminal gera o código binário e então o segundo gera o executável.  
+O primeiro comando no terminal gera o código binário e salva em um arquivo .ll. Então o segundo comando pega este arquivo .ll e gera o executável do programa.  
 
 O seguinte arquivo será gerado em ``root.ll'':  
 
 \begin{verbatim}
 ; ModuleID = "geracao-codigo-tpp.bc"
 target triple = "x86_64-unknown-linux-gnu"
-target datalayout = ""
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
-define i32 @"soma"(i32 %"x", i32 %"y") 
-{
-entry:
-	%"x.1" = alloca i32
-	%"y.1" = alloca i32
-	%".4" = load i32, i32* %"x.1"
-	%".5" = load i32, i32* %"y.1"
-	%"add" = add i32 %".4", %".5"
-	br label %"exit"
-exit:
-	%".7" = add i32 %"x", %"y"
-	ret i32 %".7"
-}
+declare i32 @"leiaInteiro"() 
 
-define i32 @"sub"(i32 %"z", i32 %"t") 
+declare float @"leiaFlutuante"() 
+
+declare void @"escrevaInteiro"(i32 %".1") 
+
+declare void @"escrevaFlutuante"(float %".1") 
+
+define i32 @"soma"(i32 %"a", i32 %"b") 
 {
-entry:
-	%"z.1" = alloca i32
-	%"t.1" = alloca i32
-	%".4" = load i32, i32* %"z.1"
-	%".5" = load i32, i32* %"t.1"
-	%"add" = sub i32 %".4", %".5"
-	br label %"exit"
+entry:S
+br label %"exit"
 exit:
-	%".7" = add i32 %"z", %"t"
-	ret i32 %".7"
+%".7" = add i32 %"a", %"b"
+ret i32 %".7"
 }
 
 define i32 @"main"() 
 {
 entry:
-	%"a" = alloca i32, align 4
-	%"b" = alloca i32, align 4
-	%"c" = alloca i32, align 4
-	%"i" = alloca i32, align 4
-	store i32 0, i32* %"i"
-	br label %"repita_inicio"
-	repita_inicio:
-	%".4" = load i32, i32* %"i"
-	%"1" = alloca i32
-	%".5" = load i32, i32* %"1"
-	%"incremento" = add i32 %".4", %".5"
-	%".6" = load i32, i32* %"i"
-	%"result" = add i32 %".6", 1
-	store i32 %"result", i32* %"i"
-	%".8" = load i32, i32* %"a"
-	%".9" = load i32, i32* %"b"
-	%".10" = call i32 @"soma"(i32 %".8", i32 %".9")
-	%".11" = load i32, i32* %"a"
-	%".12" = load i32, i32* %"b"
-	%".13" = call i32 @"sub"(i32 %".11", i32 %".12")
-	%".14" = call i32 @"soma"(i32 %".10", i32 %".13")
-	%"b_cmp" = load i32, i32* %"i", align 4
-	%"if_test_while" = icmp eq i32 %"b_cmp", 5
-	br i1 %"if_test_while", label %"repita_fim", label %"repita_inicio"
-repita_fim:
-	br label %"exit"
+%"a" = alloca i32, align 4
+%"b" = alloca i32, align 4
+%"c" = alloca i32, align 4
+%".2" = call i32 @"leiaInteiro"()
+store i32 %".2", i32* %"a"
+%".4" = call i32 @"leiaInteiro"()
+store i32 %".4", i32* %"b"
+%".6" = load i32, i32* %"a"
+%".7" = load i32, i32* %"b"
+%".8" = call i32 @"soma"(i32 %".6", i32 %".7")
+store i32 %".8", i32* %"c"
+%".10" = load i32, i32* %"c"
+call void @"escrevaInteiro"(i32 %".10")
+br label %"exit"
 exit:
 ret i32 0
 }
-
-declare void @"escreva_valor(c)"() 
-
-declare i32 @"leiaInteiro (a)"(i8* %".1", ...) 
-
-declare i32 @"leiaInteiro (b)"(i8* %".1", ...) 
-
 \end{verbatim}
+O segundo comando é o responsável por gerar o executável do programa para então realizar a utilização do programa de acordo com a Figura \ref{fig:exec}. 
+\begin{figure}[H]  
+	\centering 
+	\caption{Programa executável}
+	\includegraphics[scale=0.65]{executavel} 
+	\label{fig:exec}
+\end{figure} 
 
+\section{Conclusão} 
+De acordo com este trabalho é possível visualizar o processo de compilação de um programa na linguagem T++ bem como todos os processos necessários para isso: análise léxica, sintática, semântica e geração de código.
 \bibliographystyle{sbc}
 
 \begin{thebibliography}{99} 
